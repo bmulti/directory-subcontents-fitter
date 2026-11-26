@@ -1,0 +1,76 @@
+Python Code Depth Lifter 4.7
+Dissect a python file
+project: Python
+
+Folders in use
+    Settings   \\192.168.1.10\shared\cc_lib\_pub\cpc_depth_lifter\cc_depth_lifter.json
+    Reports    X:\cc_lib\_pub\cpc_dir_sub_fit\depth_lifter_reports
+    Backups    \\192.168.1.10\shared\cc_lib\_pub\cpc_depth_lifter\backups
+    Crash log  \\192.168.1.10\shared\cc_lib\_pub\cpc_depth_lifter\depth_lifter.log
+
+File        cpc_dir_sub_fit.py
+Modified    2026-11-18 13:06:15
+Encoding    UTF-8
+Line ends   LF (Unix, GitHub)
+
+Cautions
+    Caution 15 of 29 imports do not name the source file at the call: from datetime import datetime, from pathlib import Path, from tkinter import filedialog, from tkinter import messagebox, from tkinter import simpledialog, from tkinter import ttk ...
+
+Statistics
+    Lines                         1717   (code 1541, comments 25, blank 151)
+    Classes                       2
+    Functions and methods         77   (module level 6, methods 71, nested 0, async 0)
+    Deepest nesting               1
+    Function length (lines)       average 18.1   median 11   shortest 2 (_add_all_found)   longest 69 (_build_local_ui_tab)
+    Longest functions             _build_local_ui_tab 69, __init__ 68, _delete_selected_duplicates 61, _build_move_tab 57, _execute_moves 55
+    Over 50 lines                 5   (_build_local_ui_tab, __init__, _delete_selected_duplicates, _build_move_tab, _execute_moves)
+    Parameters per function       average 0.7   most 4 (_matches_filter)
+    With a docstring              6 of 77   (7%)   module docstring: yes
+    With a return type            0 of 77   (0%)
+    Decorated                     3
+    Variables                     module 17, class 0, self attributes 76, in functions 232
+    Call sites                    1042   (453 distinct callees)
+
+Imports
+    29 imports: 14 by module or alias, 15 by bare name, 0 star
+    The source file is named at the call for 48% of them
+
+Named by module or alias (good: a call reads os.path.join or np.array, so the source shows)
+    import argparse                                standard library               line 113   used 1x
+    import hashlib                                 standard library               line 114   used 1x
+    import shutil                                  standard library               line 115   used 1x
+    import threading                               standard library               line 116   used 1x
+    import queue                                   standard library               line 117   used 2x
+    import re                                      standard library               line 118   used 4x
+    import json                                    standard library               line 119   used 2x
+    import os                                      standard library               line 120   used 2x
+    import subprocess                              standard library               line 121   used 2x
+    import sys                                     standard library               line 122   used 4x
+    import tkinter as tk                           standard library               line 123   used 41x
+    import cpc_ui_choices as ui_choices            third party or your own file   line 145   used 2x
+    import tokenize                                standard library               line 709   used 1x
+    import ast                                     standard library               line 719   used 5x
+
+Bare names (a call reads Path(...) and does not say it came from pathlib;
+prefer: import pathlib, then pathlib.Path(...), or import pathlib as pl)
+    from datetime import datetime                  standard library               line 124   used 4x
+    from pathlib import Path                       standard library               line 125   used 22x
+    from tkinter import filedialog                 standard library               line 126   used 5x
+    from tkinter import messagebox                 standard library               line 126   used 16x
+    from tkinter import simpledialog               standard library               line 126   used 1x
+    from tkinter import ttk                        standard library               line 126   used 113x
+    from cpc_treeviews import build_treeview       third party or your own file   line 128   used 5x
+    from cpc_ui_theme import apply_app_icon        third party or your own file   line 134   used 1x
+    from cpc_ui_theme import apply_theme           third party or your own file   line 134   used 2x
+    from cpc_ui_theme import density_names         third party or your own file   line 134   used 1x
+    from cpc_ui_theme import normalize_density_name third party or your own file   line 134   used 2x
+    from cpc_ui_theme import normalize_theme_name  third party or your own file   line 134   used 2x
+    from cpc_ui_theme import theme_names           third party or your own file   line 134   used 1x
+    from cpc_ui_theme import theme_palette         third party or your own file   line 134   used 3x
+    from gateway_controller import GatewayController third party or your own file   line 151   used 2x
+
+Star imports (names cannot be traced to a file)
+    none
+
+Imported but never used (may be re-exported)
+    none

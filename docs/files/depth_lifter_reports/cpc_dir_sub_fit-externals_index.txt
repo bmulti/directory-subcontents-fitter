@@ -1,0 +1,87 @@
+source_file = cpc_dir_sub_fit.py
+source_modified = 2026-11-18 13:06:15
+import   origin   line;  indented: external name   xN calls   called by (def paths)
+
+import argparse    standard library    line 113
+        argparse.ArgumentParser    x1    called by parse_args
+import hashlib    standard library    line 114
+        hashlib.sha256    x1    called by FileOperationsMixin._checksum
+import shutil    standard library    line 115
+        shutil.move    x1    called by FileOperationsMixin._execute_moves
+import threading    standard library    line 116
+        threading.Thread    x1    called by FileOperationsMixin._start_duplicate_scan
+import queue    standard library    line 117
+        queue.Queue    x1    called by DirectoryContents.__init__
+import re    standard library    line 118
+        re.search    x1    called by FileOperationsMixin._insert_shared_path
+        re.split    x2    called by FileOperationsMixin._parse_extensions, FileOperationsMixin._start_duplicate_scan
+import json    standard library    line 119
+        json.dumps    x1    called by save_config
+        json.loads    x1    called by load_config
+import os    standard library    line 120
+        os.startfile    x2    called by DirectoryContents.open_folder, DirectoryContents.open_selected
+import subprocess    standard library    line 121
+        subprocess.Popen    x2    called by DirectoryContents._launch_companion
+import sys    standard library    line 122
+        sys.path.insert    x1    called by (module level)
+import tkinter as tk    standard library    line 123
+        tk.BooleanVar    x7    called by DirectoryContents._build_directory_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        tk.StringVar    x29    called by DirectoryContents._build_config_tab, DirectoryContents._build_directory_tab, DirectoryContents._build_local_ui_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        tk.Text    x1    called by FileOperationsMixin._build_log_tab
+        tk.Tk    x1    called by main
+from datetime import datetime    standard library    line 124    CAUTION: source file not named at the call
+        datetime.fromtimestamp    x3    called by DirectoryContents._render_rows, FileOperationsMixin._execute_moves
+        datetime.now    x1    called by FileOperationsMixin._log
+from pathlib import Path    standard library    line 125    CAUTION: source file not named at the call
+        Path    x16    called by (module level), DirectoryContents._companion_candidates, DirectoryContents._find_directory_files, DirectoryContents.load_directory, DirectoryContents.open_folder, DirectoryContents.open_selected, FileOperationsMixin._destination_for, FileOperationsMixin._find_download_files, FileOperationsMixin._find_move_files, FileOperationsMixin._rename_selected_move, FileOperationsMixin._start_duplicate_scan
+        Path.home    x6    called by FileOperationsMixin._browse_download_dir, FileOperationsMixin._browse_dup_dir, FileOperationsMixin._browse_move_dir, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_move_tab
+from tkinter import filedialog    standard library    line 126    CAUTION: source file not named at the call
+        filedialog.askdirectory    x5    called by DirectoryContents._config_browse, DirectoryContents.choose_directory, FileOperationsMixin._browse_download_dir, FileOperationsMixin._browse_dup_dir, FileOperationsMixin._browse_move_dir
+from tkinter import messagebox    standard library    line 126    CAUTION: source file not named at the call
+        messagebox.askyesno    x3    called by FileOperationsMixin._delete_selected_duplicates, FileOperationsMixin._execute_moves
+        messagebox.showerror    x12    called by DirectoryContents.load_directory, DirectoryContents.open_folder, DirectoryContents.open_selected, DirectoryContents.refresh, FileOperationsMixin._execute_moves, FileOperationsMixin._find_download_files, FileOperationsMixin._find_move_files, FileOperationsMixin._move_files, FileOperationsMixin._rename_selected_move, FileOperationsMixin._start_duplicate_scan
+        messagebox.showinfo    x1    called by FileOperationsMixin._rename_selected_move
+from tkinter import simpledialog    standard library    line 126    CAUTION: source file not named at the call
+        simpledialog.askstring    x1    called by FileOperationsMixin._rename_selected_move
+from tkinter import ttk    standard library    line 126    CAUTION: source file not named at the call
+        ttk.Button    x30    called by DirectoryContents._build_config_tab, DirectoryContents._build_directory_tab, DirectoryContents._build_local_ui_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        ttk.Checkbutton    x7    called by DirectoryContents._build_directory_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        ttk.Combobox    x2    called by DirectoryContents._build_local_ui_tab
+        ttk.Entry    x15    called by DirectoryContents._build_config_tab, DirectoryContents._build_directory_tab, DirectoryContents._build_local_ui_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        ttk.Frame    x30    called by DirectoryContents._build_config_tab, DirectoryContents._build_directory_tab, DirectoryContents._build_local_ui_tab, DirectoryContents._build_ui, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        ttk.Label    x24    called by DirectoryContents._build_config_tab, DirectoryContents._build_directory_tab, DirectoryContents._build_gateway_tab, DirectoryContents._build_local_ui_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_log_tab, FileOperationsMixin._build_move_tab
+        ttk.LabelFrame    x2    called by FileOperationsMixin._build_move_tab
+        ttk.Notebook    x1    called by DirectoryContents._build_ui
+        ttk.Panedwindow    x1    called by FileOperationsMixin._build_move_tab
+        ttk.Scrollbar    x1    called by FileOperationsMixin._build_log_tab
+from cpc_treeviews import build_treeview    third party or your own file    line 128    CAUTION: source file not named at the call
+        build_treeview    x5    called by DirectoryContents._build_directory_tab, FileOperationsMixin._build_downloads_tab, FileOperationsMixin._build_duplicate_tab, FileOperationsMixin._build_move_tab
+from cpc_ui_theme import apply_app_icon    third party or your own file    line 134    CAUTION: source file not named at the call
+        apply_app_icon    x1    called by DirectoryContents.__init__
+from cpc_ui_theme import apply_theme    third party or your own file    line 134    CAUTION: source file not named at the call
+        apply_theme    x2    called by DirectoryContents._apply_selected_theme, DirectoryContents._apply_theme
+from cpc_ui_theme import density_names    third party or your own file    line 134    CAUTION: source file not named at the call
+        density_names    x1    called by DirectoryContents._build_local_ui_tab
+from cpc_ui_theme import normalize_density_name    third party or your own file    line 134    CAUTION: source file not named at the call
+        normalize_density_name    x2    called by DirectoryContents._apply_selected_theme, load_config
+from cpc_ui_theme import normalize_theme_name    third party or your own file    line 134    CAUTION: source file not named at the call
+        normalize_theme_name    x2    called by DirectoryContents._apply_selected_theme, load_config
+from cpc_ui_theme import theme_names    third party or your own file    line 134    CAUTION: source file not named at the call
+        theme_names    x1    called by DirectoryContents._build_local_ui_tab
+from cpc_ui_theme import theme_palette    third party or your own file    line 134    CAUTION: source file not named at the call
+        theme_palette    x3    called by DirectoryContents._apply_selected_theme, DirectoryContents._apply_theme
+import cpc_ui_choices as ui_choices    third party or your own file    line 145
+        ui_choices.attach    x1    called by DirectoryContents._build_ui_tab
+from gateway_controller import GatewayController    third party or your own file    line 151    CAUTION: source file not named at the call
+        GatewayController    x1    called by DirectoryContents._build_gateway_tab
+import tokenize    standard library    line 709
+        tokenize.open    x1    called by FileOperationsMixin._insert_shared_path
+import ast    standard library    line 719
+        ast.parse    x2    called by FileOperationsMixin._insert_shared_path
+
+Unknown source (not imported or defined in this file)
+    unknown, not imported or defined here
+        CONFIG_PATH.is_file    x1    called by load_config
+        CONFIG_PATH.parent.mkdir    x1    called by save_config
+        CONFIG_PATH.read_text    x1    called by load_config
+        CONFIG_PATH.with_suffix    x1    called by save_config

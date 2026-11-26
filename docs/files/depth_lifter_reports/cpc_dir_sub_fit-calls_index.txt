@@ -1,0 +1,843 @@
+source_file = cpc_dir_sub_fit.py
+source_modified = 2026-11-18 13:06:15
+function()    first line;  -> what it calls    (where that comes from)    xN = times
+
+_deep_merge()    220
+    -> _deep_merge    (this file, line 220)
+    -> dict    (builtin)
+    -> isinstance    (builtin)    x2
+    -> result.get    (local variable or parameter)
+    -> update.items    (local variable or parameter)
+attach()    1679
+    -> context.get    (local variable or parameter)    x5
+    -> dict    (builtin)
+    -> DirectoryContents    (this file, line 965)
+load_config()    230
+    -> _deep_merge    (this file, line 220)
+    -> cfg.get    (local variable or parameter)    x2
+    -> CONFIG_PATH.is_file    (unknown, not imported or defined here)
+    -> CONFIG_PATH.read_text    (unknown, not imported or defined here)
+    -> dict    (builtin)
+    -> isinstance    (builtin)
+    -> json.loads    (import json)
+    -> normalize_density_name    (from cpc_ui_theme import normalize_density_name)
+    -> normalize_theme_name    (from cpc_ui_theme import normalize_theme_name)
+main()    1708
+    -> DirectoryContents    (this file, line 965)
+    -> parse_args    (this file, line 1696)
+    -> root.mainloop    (local variable or parameter)
+    -> tk.Tk    (import tkinter as tk)
+parse_args()    1696
+    -> argparse.ArgumentParser    (import argparse)
+    -> parser.add_argument    (local variable or parameter)
+    -> parser.parse_args    (local variable or parameter)
+save_config()    248
+    -> CONFIG_PATH.parent.mkdir    (unknown, not imported or defined here)
+    -> CONFIG_PATH.with_suffix    (unknown, not imported or defined here)
+    -> json.dumps    (import json)
+    -> temp.replace    (local variable or parameter)
+    -> temp.write_text    (local variable or parameter)
+class DirectoryContents    965-1676
+    __init__()    966
+        -> apply_app_icon    (from cpc_ui_theme import apply_app_icon)
+        -> bool    (builtin)    x5
+        -> int    (builtin)    x2
+        -> isinstance    (builtin)
+        -> load_config    (this file, line 230)
+        -> master.winfo_toplevel    (local variable or parameter)
+        -> queue.Queue    (import queue)
+        -> self._apply_theme    (this class, line 1609)
+        -> self._build_ui    (this class, line 1038)
+        -> self._restore_tab    (this class, line 1641)
+        -> self._set_title    (this class, line 1628)
+        -> self.after    (attribute of self (inherited or set at run time))
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x5
+        -> self.host_context.get    (attribute of self (inherited or set at run time))    x7
+        -> self.load_directory    (this class, line 1327)
+        -> self.pack    (attribute of self (inherited or set at run time))
+        -> self.window.deiconify    (attribute of self (inherited or set at run time))
+        -> self.window.geometry    (attribute of self (inherited or set at run time))
+        -> self.window.minsize    (attribute of self (inherited or set at run time))
+        -> self.window.protocol    (attribute of self (inherited or set at run time))
+        -> self.window.withdraw    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+        -> super().__init__    (parent class)
+    _apply_selected_theme()    1197
+        -> apply_theme    (from cpc_ui_theme import apply_theme)
+        -> dict    (builtin)
+        -> int    (builtin)    x4
+        -> max    (builtin)    x2
+        -> normalize_density_name    (from cpc_ui_theme import normalize_density_name)
+        -> normalize_theme_name    (from cpc_ui_theme import normalize_theme_name)
+        -> save_config    (this file, line 248)
+        -> self._set_status    (this class, line 1636)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x2
+        -> self.density_var.get    (attribute of self (inherited or set at run time))
+        -> self.height_var.get    (attribute of self (inherited or set at run time))
+        -> self.host_context.get    (attribute of self (inherited or set at run time))    x2
+        -> self.theme_var.get    (attribute of self (inherited or set at run time))
+        -> self.width_var.get    (attribute of self (inherited or set at run time))
+        -> self.window.geometry    (attribute of self (inherited or set at run time))
+        -> theme_palette    (from cpc_ui_theme import theme_palette)    x2
+    _apply_theme()    1609
+        -> apply_theme    (from cpc_ui_theme import apply_theme)
+        -> dict    (builtin)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x3
+        -> self.host_context.get    (attribute of self (inherited or set at run time))    x2
+        -> theme_palette    (from cpc_ui_theme import theme_palette)
+    _build_config_tab()    1126
+        -> frame.columnconfigure    (local variable or parameter)
+        -> frame.pack    (local variable or parameter)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))
+        -> str    (builtin)    x2
+        -> tk.StringVar    (import tkinter as tk)    x2
+        -> ttk.Button    (from tkinter import ttk)    x2
+        -> ttk.Button(frame, text='Browse', comman…    (method or call on an expression)
+        -> ttk.Button(frame, text='Load Directory'…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)    x2
+        -> ttk.Entry(frame, textvariable=config_va…    (method or call on an expression)
+        -> ttk.Entry(frame, textvariable=self.last…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)
+        -> ttk.Label    (from tkinter import ttk)    x3
+        -> ttk.Label(frame, text='Application Conf…    (method or call on an expression)
+        -> ttk.Label(frame, text='Config file').gr…    (method or call on an expression)
+        -> ttk.Label(frame, text='Last directory')…    (method or call on an expression)
+    _build_directory_tab()    1074
+        -> body.columnconfigure    (local variable or parameter)
+        -> body.pack    (local variable or parameter)
+        -> body.rowconfigure    (local variable or parameter)
+        -> build_treeview    (from cpc_treeviews import build_treeview)
+        -> directory_actions.pack    (local variable or parameter)
+        -> directory_filters.pack    (local variable or parameter)
+        -> RuntimeError    (builtin)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x5
+        -> self.tree.bind    (attribute of self (inherited or set at run time))    x2
+        -> self.tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.tree.selection    (attribute of self (inherited or set at run time))
+        -> self.tree.selection_remove    (attribute of self (inherited or set at run time))
+        -> self.tree.selection_set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+        -> tk.BooleanVar    (import tkinter as tk)
+        -> tk.StringVar    (import tkinter as tk)    x6
+        -> top.pack    (local variable or parameter)
+        -> ttk.Button    (from tkinter import ttk)    x4
+        -> ttk.Button(directory_actions, text='Fin…    (method or call on an expression)
+        -> ttk.Button(directory_actions, text='Sel…    (method or call on an expression)    x2
+        -> ttk.Button(top, text='Browse', command=…    (method or call on an expression)
+        -> ttk.Checkbutton    (from tkinter import ttk)
+        -> ttk.Checkbutton(directory_filters, text…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)    x2
+        -> ttk.Entry(directory_filters, textvariab…    (method or call on an expression)
+        -> ttk.Entry(top, textvariable=self.direct…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)    x4
+        -> ttk.Label    (from tkinter import ttk)    x4
+        -> ttk.Label(directory_filters, text=label…    (method or call on an expression)
+        -> ttk.Label(self.directory_tab, textvaria…    (method or call on an expression)
+        -> ttk.Label(top, text='Directory').pack    (method or call on an expression)
+        -> ttk.Label(top, textvariable=self.count_…    (method or call on an expression)
+    _build_gateway_tab()    1302
+        -> GatewayController    (from gateway_controller import GatewayController)
+        -> ttk.Label    (from tkinter import ttk)    x2
+        -> ttk.Label(self.gateway_tab, text='Gatew…    (method or call on an expression)
+        -> ttk.Label(self.gateway_tab, text=f'Gate…    (method or call on an expression)
+    _build_local_ui_tab()    1232
+        -> density_names    (from cpc_ui_theme import density_names)
+        -> frame.pack    (local variable or parameter)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x4
+        -> str    (builtin)    x2
+        -> theme_names    (from cpc_ui_theme import theme_names)
+        -> tk.StringVar    (import tkinter as tk)    x4
+        -> ttk.Button    (from tkinter import ttk)    x2
+        -> ttk.Button(frame, text='Apply + Save', …    (method or call on an expression)
+        -> ttk.Button(frame, text='Use Current Siz…    (method or call on an expression)
+        -> ttk.Combobox    (from tkinter import ttk)    x2
+        -> ttk.Combobox(frame, textvariable=self.d…    (method or call on an expression)
+        -> ttk.Combobox(frame, textvariable=self.t…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)    x2
+        -> ttk.Entry(frame, textvariable=self.heig…    (method or call on an expression)
+        -> ttk.Entry(frame, textvariable=self.widt…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)
+        -> ttk.Label    (from tkinter import ttk)    x5
+        -> ttk.Label(frame, text='Density').grid    (method or call on an expression)
+        -> ttk.Label(frame, text='Theme').grid    (method or call on an expression)
+        -> ttk.Label(frame, text='UI Choices', fon…    (method or call on an expression)
+        -> ttk.Label(frame, text='Window Height').…    (method or call on an expression)
+        -> ttk.Label(frame, text='Window Width').g…    (method or call on an expression)
+    _build_ui()    1038
+        -> self._build_config_tab    (this class, line 1126)
+        -> self._build_directory_tab    (this class, line 1074)
+        -> self._build_downloads_tab    (attribute of self (inherited or set at run time))
+        -> self._build_duplicate_tab    (attribute of self (inherited or set at run time))
+        -> self._build_gateway_tab    (this class, line 1302)
+        -> self._build_log_tab    (attribute of self (inherited or set at run time))
+        -> self._build_move_tab    (attribute of self (inherited or set at run time))
+        -> self._build_ui_tab    (this class, line 1168)
+        -> self.notebook.add    (attribute of self (inherited or set at run time))    x8
+        -> self.notebook.bind    (attribute of self (inherited or set at run time))
+        -> self.notebook.pack    (attribute of self (inherited or set at run time))
+        -> ttk.Frame    (from tkinter import ttk)    x8
+        -> ttk.Notebook    (from tkinter import ttk)
+    _build_ui_tab()    1168
+        -> self._build_local_ui_tab    (this class, line 1232)
+        -> self._set_status    (this class, line 1636)
+        -> ui_choices.attach    (import cpc_ui_choices as ui_choices)
+    _companion_candidates()    1486
+        -> Path    (from pathlib import Path)    x3
+        -> seen.add    (local variable or parameter)
+        -> set    (builtin)
+        -> str    (builtin)
+        -> str(candidate).casefold    (method or call on an expression)
+    _config_browse()    1587
+        -> filedialog.askdirectory    (from tkinter import filedialog)
+        -> self.last_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.last_dir_var.get().strip    (method or call on an expression)
+        -> self.last_dir_var.set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    _find_directory_files()    1119
+        -> Path    (from pathlib import Path)
+        -> Path(self.directory_dir_var.get()).expa…    (method or call on an expression)
+        -> self.directory_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.load_directory    (this class, line 1327)
+        -> self.refresh    (this class, line 1367)
+    _launch_companion()    1503
+        -> candidate.is_file    (local variable or parameter)
+        -> candidate.suffix.lower    (local variable or parameter)
+        -> getattr    (builtin)
+        -> self._companion_candidates    (this class, line 1486)
+        -> self._set_status    (this class, line 1636)
+        -> str    (builtin)    x6
+        -> subprocess.Popen    (import subprocess)    x2
+    _load_config_directory()    1594
+        -> self.last_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.last_dir_var.get().strip    (method or call on an expression)
+        -> self.load_directory    (this class, line 1327)
+    _mousewheel()    1578
+        -> int    (builtin)
+        -> self.tree.yview_scroll    (attribute of self (inherited or set at run time))
+    _on_close()    1673
+        -> self.shutdown    (this class, line 1659)
+        -> self.window.destroy    (attribute of self (inherited or set at run time))
+    _render_rows()    1414
+        -> datetime.fromtimestamp    (from datetime import datetime)
+        -> datetime.fromtimestamp(row['date']).str…    (method or call on an expression)
+        -> enumerate    (builtin)
+        -> self.tree.delete    (attribute of self (inherited or set at run time))
+        -> self.tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.tree.insert    (attribute of self (inherited or set at run time))
+        -> sorted    (builtin)
+        -> str    (builtin)    x3
+        -> str(row[key]).casefold    (method or call on an expression)
+    _restore_tab()    1641
+        -> self.cfg.get    (attribute of self (inherited or set at run time))
+        -> self.notebook.select    (attribute of self (inherited or set at run time))
+        -> self.notebook.tab    (attribute of self (inherited or set at run time))
+        -> self.notebook.tabs    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+        -> {'Directory': 'Explorer', 'Downloads': …    (method or call on an expression)
+    _save_config_dict()    1194
+        -> save_config    (this file, line 248)
+    _set_status()    1636
+        -> hasattr    (builtin)
+        -> self._log    (attribute of self (inherited or set at run time))
+        -> self.status_var.set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    _set_title()    1628
+        -> self.window.title    (attribute of self (inherited or set at run time))    x2
+    _tab_changed()    1651
+        -> self.notebook.select    (attribute of self (inherited or set at run time))
+        -> self.notebook.tab    (attribute of self (inherited or set at run time))
+    _use_current_size()    1599
+        -> self.height_var.set    (attribute of self (inherited or set at run time))
+        -> self.host_context.get    (attribute of self (inherited or set at run time))
+        -> self.width_var.set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)    x2
+        -> target.update_idletasks    (local variable or parameter)
+        -> target.winfo_height    (local variable or parameter)
+        -> target.winfo_width    (local variable or parameter)
+    apply_ui_choices()    1605
+        -> self._apply_selected_theme    (this class, line 1197)
+    choose_directory()    1460
+        -> filedialog.askdirectory    (from tkinter import filedialog)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))
+        -> self.load_directory    (this class, line 1327)
+        -> str    (builtin)    x2
+    copy_file_names()    1471
+        -> '\n'.join    (method or call on an expression)
+        -> len    (builtin)
+        -> self._set_status    (this class, line 1636)    x2
+        -> self.clipboard_append    (attribute of self (inherited or set at run time))
+        -> self.clipboard_clear    (attribute of self (inherited or set at run time))
+        -> self.tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.tree.set    (attribute of self (inherited or set at run time))
+        -> self.update_idletasks    (attribute of self (inherited or set at run time))
+    load_directory()    1327
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> Path    (from pathlib import Path)
+        -> Path(directory).expanduser    (method or call on an expression)
+        -> path.is_dir    (local variable or parameter)
+        -> path.resolve    (local variable or parameter)
+        -> save_config    (this file, line 248)
+        -> self._set_status    (this class, line 1636)
+        -> self._set_title    (this class, line 1628)
+        -> self.directory_dir_var.set    (attribute of self (inherited or set at run time))
+        -> self.last_dir_var.set    (attribute of self (inherited or set at run time))
+        -> self.notebook.select    (attribute of self (inherited or set at run time))
+        -> self.refresh    (this class, line 1367)
+        -> str    (builtin)    x3
+    navigate()    1363
+        -> self.load_directory    (this class, line 1327)
+    open_directory()    1359
+        -> self.load_directory    (this class, line 1327)
+    open_folder()    1563
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> os.startfile    (import os)
+        -> Path    (from pathlib import Path)
+        -> self._log    (attribute of self (inherited or set at run time))
+        -> self.tree.item    (attribute of self (inherited or set at run time))
+        -> self.tree.selection    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    open_selected()    1529
+        -> messagebox.showerror    (from tkinter import messagebox)    x2
+        -> os.startfile    (import os)
+        -> Path    (from pathlib import Path)
+        -> path.is_file    (local variable or parameter)
+        -> path.suffix.lower    (local variable or parameter)
+        -> self._launch_companion    (this class, line 1503)
+        -> self._set_status    (this class, line 1636)    x2
+        -> self.tree.item    (attribute of self (inherited or set at run time))
+        -> self.tree.selection    (attribute of self (inherited or set at run time))
+    refresh()    1367
+        -> len    (builtin)    x2
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> path.stat    (local variable or parameter)
+        -> path.suffix.lower    (local variable or parameter)
+        -> rows.append    (local variable or parameter)
+        -> self._matches_filter    (attribute of self (inherited or set at run time))
+        -> self._parse_extensions    (attribute of self (inherited or set at run time))
+        -> self._render_rows    (this class, line 1414)
+        -> self._scan_paths    (attribute of self (inherited or set at run time))
+        -> self._set_status    (this class, line 1636)
+        -> self.cfg.update    (attribute of self (inherited or set at run time))
+        -> self.count_var.set    (attribute of self (inherited or set at run time))
+        -> self.current_directory.is_dir    (attribute of self (inherited or set at run time))
+        -> self.directory_contains_var.get    (attribute of self (inherited or set at run time))    x2
+        -> self.directory_contains_var.get().strip    (method or call on an expression)
+        -> self.directory_contains_var.get().strip…    (method or call on an expression)
+        -> self.directory_extensions_var.get    (attribute of self (inherited or set at run time))    x2
+        -> self.directory_recursive_var.get    (attribute of self (inherited or set at run time))    x3
+        -> self.directory_starts_var.get    (attribute of self (inherited or set at run time))    x2
+        -> self.directory_starts_var.get().strip    (method or call on an expression)
+        -> self.directory_starts_var.get().strip()…    (method or call on an expression)
+    set_directory()    1355
+        -> self.load_directory    (this class, line 1327)
+    shutdown()    1659
+        -> save_config    (this file, line 248)
+        -> self._tab_changed    (this class, line 1651)
+        -> self.log_entries.clear    (attribute of self (inherited or set at run time))
+        -> self.update_idletasks    (attribute of self (inherited or set at run time))
+        -> self.window.winfo_height    (attribute of self (inherited or set at run time))
+        -> self.window.winfo_width    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    sort_by()    1452
+        -> self._render_rows    (this class, line 1414)
+class FileOperationsMixin    262-962
+    _add_all_found()    524
+        -> self._add_paths    (this class, line 527)
+        -> self.found_tree.get_children    (attribute of self (inherited or set at run time))
+    _add_paths()    527
+        -> existing.add    (local variable or parameter)
+        -> len    (builtin)    x2
+        -> self._log    (this class, line 265)
+        -> self._selected_move_file    (this class, line 544)
+        -> self._update_destinations    (this class, line 567)
+        -> self.selected_paths.values    (attribute of self (inherited or set at run time))
+        -> set    (builtin)
+        -> str    (builtin)
+    _add_selected_found()    520
+        -> self._add_paths    (this class, line 527)
+        -> self.found_tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.found_tree.selection    (attribute of self (inherited or set at run time))
+        -> set    (builtin)
+    _browse_download_dir()    358
+        -> filedialog.askdirectory    (from tkinter import filedialog)
+        -> Path.home    (from pathlib import Path)
+        -> self._log    (this class, line 265)
+        -> self.download_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.download_dir_var.set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    _browse_dup_dir()    790
+        -> filedialog.askdirectory    (from tkinter import filedialog)
+        -> Path.home    (from pathlib import Path)
+        -> self.dup_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.dup_dir_var.set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    _browse_move_dir()    458
+        -> filedialog.askdirectory    (from tkinter import filedialog)
+        -> Path.home    (from pathlib import Path)
+        -> self._log    (this class, line 265)
+        -> self.move_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_dir_var.set    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    _build_downloads_tab()    326
+        -> actions.pack    (local variable or parameter)
+        -> build_treeview    (from cpc_treeviews import build_treeview)
+        -> filters.pack    (local variable or parameter)
+        -> outer.pack    (local variable or parameter)
+        -> Path.home    (from pathlib import Path)
+        -> RuntimeError    (builtin)
+        -> self._move_download_files    (this class, line 386)    x2
+        -> self.download_tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.download_tree.selection    (attribute of self (inherited or set at run time))
+        -> self.download_tree.selection_remove    (attribute of self (inherited or set at run time))
+        -> self.download_tree.selection_set    (attribute of self (inherited or set at run time))
+        -> source.pack    (local variable or parameter)
+        -> str    (builtin)
+        -> tk.BooleanVar    (import tkinter as tk)
+        -> tk.StringVar    (import tkinter as tk)    x4
+        -> ttk.Button    (from tkinter import ttk)    x6
+        -> ttk.Button(actions, text='Find', comman…    (method or call on an expression)
+        -> ttk.Button(actions, text='Move All', co…    (method or call on an expression)
+        -> ttk.Button(actions, text='Move Selected…    (method or call on an expression)
+        -> ttk.Button(actions, text='Select All', …    (method or call on an expression)
+        -> ttk.Button(actions, text='Select None',…    (method or call on an expression)
+        -> ttk.Button(source, text='Browse', comma…    (method or call on an expression)
+        -> ttk.Checkbutton    (from tkinter import ttk)
+        -> ttk.Checkbutton(filters, text='Recursiv…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)    x2
+        -> ttk.Entry(filters, textvariable=var, wi…    (method or call on an expression)
+        -> ttk.Entry(source, textvariable=self.dow…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)    x4
+        -> ttk.Label    (from tkinter import ttk)    x2
+        -> ttk.Label(filters, text=label).pack    (method or call on an expression)
+        -> ttk.Label(source, text='Downloads direc…    (method or call on an expression)
+    _build_duplicate_tab()    752
+        -> actions.pack    (local variable or parameter)
+        -> build_treeview    (from cpc_treeviews import build_treeview)
+        -> filterbar.pack    (local variable or parameter)
+        -> outer.pack    (local variable or parameter)
+        -> Path.home    (from pathlib import Path)
+        -> RuntimeError    (builtin)
+        -> self._select_duplicates    (this class, line 894)    x2
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x3
+        -> self.duplicate_tree.selection    (attribute of self (inherited or set at run time))
+        -> self.duplicate_tree.selection_remove    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+        -> tk.BooleanVar    (import tkinter as tk)    x2
+        -> tk.StringVar    (import tkinter as tk)    x6
+        -> top.pack    (local variable or parameter)
+        -> ttk.Button    (from tkinter import ttk)    x6
+        -> ttk.Button(actions, text='Delete Select…    (method or call on an expression)
+        -> ttk.Button(actions, text='Find Duplicat…    (method or call on an expression)
+        -> ttk.Button(actions, text='First Duplica…    (method or call on an expression)
+        -> ttk.Button(actions, text='Last Duplicat…    (method or call on an expression)
+        -> ttk.Button(actions, text='Select None',…    (method or call on an expression)
+        -> ttk.Button(top, text='Browse', command=…    (method or call on an expression)
+        -> ttk.Checkbutton    (from tkinter import ttk)    x2
+        -> ttk.Checkbutton(filterbar, text='Recurs…    (method or call on an expression)
+        -> ttk.Checkbutton(filterbar, text='User f…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)    x3
+        -> ttk.Entry(filterbar, width=11, textvari…    (method or call on an expression)
+        -> ttk.Entry(filterbar, width=12, textvari…    (method or call on an expression)
+        -> ttk.Entry(top, textvariable=self.dup_di…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)    x4
+        -> ttk.Label    (from tkinter import ttk)    x3
+        -> ttk.Label(filterbar, text=label).pack    (method or call on an expression)    x2
+        -> ttk.Label(top, text='Directory').pack    (method or call on an expression)
+    _build_log_tab()    275
+        -> controls.pack    (local variable or parameter)
+        -> log_scroll.pack    (local variable or parameter)
+        -> self._render_log    (this class, line 296)    x2
+        -> self.log_search_var.trace_add    (attribute of self (inherited or set at run time))
+        -> self.log_text.configure    (attribute of self (inherited or set at run time))
+        -> self.log_text.pack    (attribute of self (inherited or set at run time))
+        -> self.log_text.tag_configure    (attribute of self (inherited or set at run time))
+        -> tk.BooleanVar    (import tkinter as tk)
+        -> tk.StringVar    (import tkinter as tk)    x2
+        -> tk.Text    (import tkinter as tk)
+        -> ttk.Button    (from tkinter import ttk)
+        -> ttk.Button(controls, text='Clear Log', …    (method or call on an expression)
+        -> ttk.Checkbutton    (from tkinter import ttk)
+        -> ttk.Checkbutton(controls, text='Matchin…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)
+        -> ttk.Entry(controls, textvariable=self.l…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)
+        -> ttk.Label    (from tkinter import ttk)    x2
+        -> ttk.Label(controls, text='Search').pack    (method or call on an expression)
+        -> ttk.Label(self.log_tab, textvariable=se…    (method or call on an expression)
+        -> ttk.Scrollbar    (from tkinter import ttk)
+    _build_move_tab()    400
+        -> build_treeview    (from cpc_treeviews import build_treeview)    x2
+        -> filters.pack    (local variable or parameter)
+        -> find_actions.pack    (local variable or parameter)
+        -> outer.pack    (local variable or parameter)
+        -> panes.add    (local variable or parameter)    x2
+        -> panes.pack    (local variable or parameter)
+        -> Path.home    (from pathlib import Path)
+        -> RuntimeError    (builtin)
+        -> selected_actions.pack    (local variable or parameter)
+        -> selected_destination.pack    (local variable or parameter)
+        -> selected_tree_box.pack    (local variable or parameter)
+        -> self._move_files    (this class, line 625)    x2
+        -> self._update_destinations    (this class, line 567)
+        -> self.cfg.get    (attribute of self (inherited or set at run time))    x7
+        -> self.move_subdir_var.trace_add    (attribute of self (inherited or set at run time))
+        -> source.pack    (local variable or parameter)
+        -> str    (builtin)
+        -> tk.BooleanVar    (import tkinter as tk)    x2
+        -> tk.StringVar    (import tkinter as tk)    x5
+        -> ttk.Button    (from tkinter import ttk)    x9
+        -> ttk.Button(find_actions, text='Add All'…    (method or call on an expression)
+        -> ttk.Button(find_actions, text='Add Sele…    (method or call on an expression)
+        -> ttk.Button(find_actions, text='Find', c…    (method or call on an expression)
+        -> ttk.Button(selected_actions, text='Clea…    (method or call on an expression)
+        -> ttk.Button(selected_actions, text='Move…    (method or call on an expression)    x2
+        -> ttk.Button(selected_actions, text='Remo…    (method or call on an expression)
+        -> ttk.Button(selected_actions, text='Rena…    (method or call on an expression)
+        -> ttk.Button(source, text='Browse', comma…    (method or call on an expression)
+        -> ttk.Checkbutton    (from tkinter import ttk)    x2
+        -> ttk.Checkbutton(filters, text='Recursiv…    (method or call on an expression)
+        -> ttk.Checkbutton(selected_destination, t…    (method or call on an expression)
+        -> ttk.Entry    (from tkinter import ttk)    x3
+        -> ttk.Entry(filters, textvariable=var, wi…    (method or call on an expression)
+        -> ttk.Entry(selected_destination, textvar…    (method or call on an expression)
+        -> ttk.Entry(source, textvariable=self.mov…    (method or call on an expression)
+        -> ttk.Frame    (from tkinter import ttk)    x7
+        -> ttk.Label    (from tkinter import ttk)    x3
+        -> ttk.Label(filters, text=label).pack    (method or call on an expression)
+        -> ttk.Label(selected_destination, text='N…    (method or call on an expression)
+        -> ttk.Label(source, text='Source director…    (method or call on an expression)
+        -> ttk.LabelFrame    (from tkinter import ttk)    x2
+        -> ttk.Panedwindow    (from tkinter import ttk)
+    _checksum()    742
+        -> digest.hexdigest    (local variable or parameter)
+        -> digest.update    (local variable or parameter)
+        -> file.read    (local variable or parameter)
+        -> hashlib.sha256    (import hashlib)
+        -> path.open    (local variable or parameter)
+    _clear_log()    320
+        -> hasattr    (builtin)
+        -> self._render_log    (this class, line 296)
+        -> self.log_entries.clear    (attribute of self (inherited or set at run time))
+        -> self.log_status_var.set    (attribute of self (inherited or set at run time))
+    _clear_selected_move()    616
+        -> len    (builtin)
+        -> self._log    (this class, line 265)
+        -> self._update_destinations    (this class, line 567)
+        -> self.destination_names.clear    (attribute of self (inherited or set at run time))
+        -> self.move_subdir_var.set    (attribute of self (inherited or set at run time))
+        -> self.selected_paths.clear    (attribute of self (inherited or set at run time))
+    _delete_selected_duplicates()    902
+        -> '\n'.join    (method or call on an expression)
+        -> deleted.add    (local variable or parameter)
+        -> len    (builtin)    x10
+        -> lines.append    (local variable or parameter)    x2
+        -> list    (builtin)
+        -> messagebox.askyesno    (from tkinter import messagebox)
+        -> path.stat    (local variable or parameter)
+        -> path.unlink    (local variable or parameter)
+        -> remaining_groups.append    (local variable or parameter)
+        -> self._log    (this class, line 265)    x8
+        -> self.duplicate_paths.get    (attribute of self (inherited or set at run time))    x2
+        -> self.duplicate_paths.pop    (attribute of self (inherited or set at run time))    x2
+        -> self.duplicate_tree.delete    (attribute of self (inherited or set at run time))    x2
+        -> self.duplicate_tree.selection    (attribute of self (inherited or set at run time))
+        -> set    (builtin)    x3
+    _destination_for()    555
+        -> Path    (from pathlib import Path)    x3
+        -> Path(self.move_dir_var.get()).expanduser    (method or call on an expression)
+        -> self.destination_names.get    (attribute of self (inherited or set at run time))
+        -> self.move_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_subdir_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_subdir_var.get().strip    (method or call on an expression)
+        -> ValueError    (builtin)    x3
+    _drain_tasks()    866
+        -> ids.append    (local variable or parameter)
+        -> len    (builtin)    x2
+        -> self._log    (this class, line 265)    x2
+        -> self._tasks.get_nowait    (attribute of self (inherited or set at run time))
+        -> self.after    (attribute of self (inherited or set at run time))
+        -> self.duplicate_groups.append    (attribute of self (inherited or set at run time))
+        -> self.duplicate_paths.clear    (attribute of self (inherited or set at run time))
+        -> self.duplicate_tree.delete    (attribute of self (inherited or set at run time))
+        -> self.duplicate_tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.duplicate_tree.insert    (attribute of self (inherited or set at run time))
+        -> self.winfo_exists    (attribute of self (inherited or set at run time))
+        -> sorted    (builtin)
+        -> str    (builtin)    x2
+    _duplicate_worker()    823
+        -> any    (builtin)
+        -> checks.items    (local variable or parameter)
+        -> checks.setdefault    (local variable or parameter)
+        -> checks.setdefault(self._checksum(path),…    (method or call on an expression)
+        -> duplicates.append    (local variable or parameter)
+        -> errors.append    (local variable or parameter)    x2
+        -> groups.items    (local variable or parameter)
+        -> groups.setdefault    (local variable or parameter)
+        -> groups.setdefault(size, []).append    (method or call on an expression)
+        -> len    (builtin)    x2
+        -> name.startswith    (local variable or parameter)
+        -> part.startswith    (local variable or parameter)
+        -> path.is_file    (local variable or parameter)
+        -> path.is_symlink    (local variable or parameter)
+        -> path.name.casefold    (local variable or parameter)
+        -> path.name.startswith    (local variable or parameter)
+        -> path.relative_to    (local variable or parameter)
+        -> path.stat    (local variable or parameter)
+        -> path.suffix.lower    (local variable or parameter)
+        -> path.suffix.lower().lstrip    (method or call on an expression)
+        -> root.iterdir    (local variable or parameter)
+        -> root.rglob    (local variable or parameter)
+        -> self._checksum    (this class, line 742)
+        -> self._tasks.put    (attribute of self (inherited or set at run time))    x2
+        -> sorted    (builtin)
+        -> str    (builtin)    x2
+        -> str(p).casefold    (method or call on an expression)
+    _execute_moves()    647
+        -> '\n'.join    (method or call on an expression)
+        -> '\n\n'.join    (method or call on an expression)
+        -> datetime.fromtimestamp    (from datetime import datetime)    x2
+        -> dst.exists    (local variable or parameter)    x2
+        -> dst.is_dir    (local variable or parameter)
+        -> dst.is_file    (local variable or parameter)
+        -> dst.parent.mkdir    (local variable or parameter)
+        -> dst.resolve    (local variable or parameter)
+        -> dst.stat    (local variable or parameter)
+        -> dst.suffix.lower    (local variable or parameter)
+        -> dst.unlink    (local variable or parameter)
+        -> IsADirectoryError    (builtin)
+        -> len    (builtin)    x11
+        -> lines.append    (local variable or parameter)    x2
+        -> messagebox.askyesno    (from tkinter import messagebox)    x2
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> moved.append    (local variable or parameter)
+        -> self._checksum    (this class, line 742)    x2
+        -> self._insert_shared_path    (this class, line 703)
+        -> self._log    (this class, line 265)    x10
+        -> self.insert_path_var.get    (attribute of self (inherited or set at run time))
+        -> set    (builtin)
+        -> shutil.move    (import shutil)
+        -> src.resolve    (local variable or parameter)
+        -> src.stat    (local variable or parameter)
+        -> str    (builtin)    x3
+        -> str(dst).casefold    (method or call on an expression)
+    _extensions()    469
+        -> self._parse_extensions    (this class, line 465)
+        -> self.move_extensions_var.get    (attribute of self (inherited or set at run time))
+    _find_download_files()    364
+        -> len    (builtin)    x2
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> Path    (from pathlib import Path)
+        -> Path(self.download_dir_var.get()).expan…    (method or call on an expression)
+        -> path.stat    (local variable or parameter)
+        -> path.suffix.lower    (local variable or parameter)    x2
+        -> path.suffix.lower().lstrip    (method or call on an expression)
+        -> root.is_dir    (local variable or parameter)
+        -> self._log    (this class, line 265)    x2
+        -> self._matches_filter    (this class, line 473)
+        -> self._parse_extensions    (this class, line 465)
+        -> self._scan_paths    (this class, line 483)
+        -> self.download_contains_var.get    (attribute of self (inherited or set at run time))
+        -> self.download_contains_var.get().strip    (method or call on an expression)
+        -> self.download_contains_var.get().strip(…    (method or call on an expression)
+        -> self.download_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.download_extensions_var.get    (attribute of self (inherited or set at run time))
+        -> self.download_paths.clear    (attribute of self (inherited or set at run time))
+        -> self.download_recursive_var.get    (attribute of self (inherited or set at run time))
+        -> self.download_starts_var.get    (attribute of self (inherited or set at run time))
+        -> self.download_starts_var.get().strip    (method or call on an expression)
+        -> self.download_starts_var.get().strip().…    (method or call on an expression)
+        -> self.download_tree.delete    (attribute of self (inherited or set at run time))
+        -> self.download_tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.download_tree.insert    (attribute of self (inherited or set at run time))
+        -> str    (builtin)    x2
+    _find_move_files()    492
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> Path    (from pathlib import Path)
+        -> Path(self.move_dir_var.get()).expanduser    (method or call on an expression)
+        -> path.stat    (local variable or parameter)
+        -> path.suffix.lower    (local variable or parameter)
+        -> root.is_dir    (local variable or parameter)
+        -> save_config    (this file, line 248)
+        -> self._log    (this class, line 265)    x2
+        -> self._match_name    (this class, line 479)
+        -> self._scan_paths    (this class, line 483)
+        -> self.cfg.update    (attribute of self (inherited or set at run time))
+        -> self.found_paths.clear    (attribute of self (inherited or set at run time))
+        -> self.found_tree.delete    (attribute of self (inherited or set at run time))
+        -> self.found_tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.found_tree.insert    (attribute of self (inherited or set at run time))
+        -> self.insert_path_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_contains_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_extensions_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_recursive_var.get    (attribute of self (inherited or set at run time))    x3
+        -> self.move_starts_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_subdir_var.get    (attribute of self (inherited or set at run time))
+        -> str    (builtin)    x3
+    _insert_shared_path()    703
+        -> ''.join    (method or call on an expression)
+        -> ast.parse    (import ast)    x2
+        -> code.splitlines    (local variable or parameter)
+        -> fh.read    (local variable or parameter)
+        -> isinstance    (builtin)    x4
+        -> lines.insert    (local variable or parameter)
+        -> path.read_bytes    (local variable or parameter)
+        -> path.write_bytes    (local variable or parameter)
+        -> re.search    (import re)
+        -> self._log    (this class, line 265)    x3
+        -> snippet.replace    (local variable or parameter)
+        -> tokenize.open    (import tokenize)
+        -> updated.encode    (local variable or parameter)
+    _log()    265
+        -> datetime.now    (from datetime import datetime)
+        -> datetime.now().strftime    (method or call on an expression)
+        -> hasattr    (builtin)    x3
+        -> len    (builtin)
+        -> self._render_log    (this class, line 296)
+        -> self.log_entries.append    (attribute of self (inherited or set at run time))
+        -> self.log_status_var.set    (attribute of self (inherited or set at run time))
+    _match_name()    479
+        -> self._extensions    (this class, line 469)
+        -> self._matches_filter    (this class, line 473)
+        -> self.move_contains_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_contains_var.get().strip    (method or call on an expression)
+        -> self.move_contains_var.get().strip().ca…    (method or call on an expression)
+        -> self.move_starts_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_starts_var.get().strip    (method or call on an expression)
+        -> self.move_starts_var.get().strip().case…    (method or call on an expression)
+    _matches_filter()    473
+        -> name.startswith    (local variable or parameter)
+        -> path.name.casefold    (local variable or parameter)
+        -> path.suffix.lower    (local variable or parameter)
+        -> path.suffix.lower().lstrip    (method or call on an expression)
+    _move_download_files()    386
+        -> list    (builtin)    x2
+        -> plans.append    (local variable or parameter)
+        -> self._execute_moves    (this class, line 647)
+        -> self._find_download_files    (this class, line 364)
+        -> self._log    (this class, line 265)
+        -> self.download_tree.selection    (attribute of self (inherited or set at run time))
+        -> src.suffix.lower    (local variable or parameter)
+        -> src.suffix.lower().lstrip    (method or call on an expression)
+    _move_files()    625
+        -> list    (builtin)    x2
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> self._destination_for    (this class, line 555)
+        -> self._execute_moves    (this class, line 647)
+        -> self._find_move_files    (this class, line 492)
+        -> self._log    (this class, line 265)    x2
+        -> self._update_destinations    (this class, line 567)
+        -> self.destination_names.pop    (attribute of self (inherited or set at run time))
+        -> self.insert_path_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_subdir_var.get    (attribute of self (inherited or set at run time))
+        -> self.selected_paths.pop    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.selection    (attribute of self (inherited or set at run time))
+        -> str    (builtin)
+    _parse_extensions()    465
+        -> part.strip    (local variable or parameter)    x2
+        -> part.strip().lower    (method or call on an expression)
+        -> part.strip().lower().lstrip    (method or call on an expression)
+        -> re.split    (import re)
+    _remove_selected_move()    606
+        -> len    (builtin)
+        -> self._log    (this class, line 265)
+        -> self._update_destinations    (this class, line 567)
+        -> self.destination_names.pop    (attribute of self (inherited or set at run time))
+        -> self.selected_paths.pop    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.selection    (attribute of self (inherited or set at run time))
+    _rename_selected_move()    588
+        -> len    (builtin)
+        -> messagebox.showerror    (from tkinter import messagebox)
+        -> messagebox.showinfo    (from tkinter import messagebox)
+        -> Path    (from pathlib import Path)
+        -> self._log    (this class, line 265)
+        -> self._update_destinations    (this class, line 567)
+        -> self.destination_names.get    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.selection    (attribute of self (inherited or set at run time))
+        -> simpledialog.askstring    (from tkinter import simpledialog)
+    _render_log()    296
+        -> folded.find    (local variable or parameter)
+        -> hasattr    (builtin)
+        -> len    (builtin)    x2
+        -> line.casefold    (local variable or parameter)    x2
+        -> max    (builtin)
+        -> self.log_only_var.get    (attribute of self (inherited or set at run time))
+        -> self.log_search_var.get    (attribute of self (inherited or set at run time))
+        -> self.log_search_var.get().casefold    (method or call on an expression)
+        -> widget.configure    (local variable or parameter)    x2
+        -> widget.delete    (local variable or parameter)
+        -> widget.index    (local variable or parameter)
+        -> widget.insert    (local variable or parameter)
+        -> widget.see    (local variable or parameter)
+        -> widget.tag_add    (local variable or parameter)
+    _scan_paths()    483
+        -> path.is_file    (local variable or parameter)
+        -> path.is_symlink    (local variable or parameter)
+        -> root.iterdir    (local variable or parameter)
+        -> root.rglob    (local variable or parameter)
+        -> self._log    (this class, line 265)
+    _select_duplicates()    894
+        -> len    (builtin)
+        -> selected.extend    (local variable or parameter)
+        -> self._log    (this class, line 265)
+        -> self.duplicate_tree.selection_set    (attribute of self (inherited or set at run time))
+    _selected_move_file()    544
+        -> next    (builtin)
+        -> path.suffix.lower    (local variable or parameter)
+        -> self._log    (this class, line 265)
+        -> self.move_contains_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_contains_var.get().strip    (method or call on an expression)
+        -> self.move_starts_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_starts_var.get().strip    (method or call on an expression)
+        -> self.move_subdir_var.set    (attribute of self (inherited or set at run time))
+        -> self.selected_paths.values    (attribute of self (inherited or set at run time))
+    _start_duplicate_scan()    795
+        -> int    (builtin)    x2
+        -> messagebox.showerror    (from tkinter import messagebox)    x2
+        -> Path    (from pathlib import Path)
+        -> Path(self.dup_dir_var.get()).expanduser    (method or call on an expression)
+        -> re.split    (import re)
+        -> root.is_dir    (local variable or parameter)
+        -> save_config    (this file, line 248)
+        -> self._log    (this class, line 265)    x2
+        -> self.cfg.update    (attribute of self (inherited or set at run time))
+        -> self.dup_contains_var.get    (attribute of self (inherited or set at run time))
+        -> self.dup_contains_var.get().casefold    (method or call on an expression)
+        -> self.dup_contains_var.get().casefold().…    (method or call on an expression)
+        -> self.dup_dir_var.get    (attribute of self (inherited or set at run time))
+        -> self.dup_extensions_var.get    (attribute of self (inherited or set at run time))
+        -> self.dup_max_var.get    (attribute of self (inherited or set at run time))    x3
+        -> self.dup_max_var.get().strip    (method or call on an expression)    x2
+        -> self.dup_min_var.get    (attribute of self (inherited or set at run time))    x2
+        -> self.dup_min_var.get().strip    (method or call on an expression)
+        -> self.dup_recursive_var.get    (attribute of self (inherited or set at run time))
+        -> self.dup_starts_var.get    (attribute of self (inherited or set at run time))
+        -> self.dup_starts_var.get().casefold    (method or call on an expression)
+        -> self.dup_starts_var.get().casefold().st…    (method or call on an expression)
+        -> self.dup_user_files_var.get    (attribute of self (inherited or set at run time))    x2
+        -> threading.Thread    (import threading)
+        -> threading.Thread(target=self._duplicate…    (method or call on an expression)
+        -> ValueError    (builtin)
+        -> x.strip    (local variable or parameter)    x2
+        -> x.strip().lower    (method or call on an expression)
+        -> x.strip().lower().lstrip    (method or call on an expression)
+    _update_destinations()    567
+        -> hasattr    (builtin)
+        -> path.stat    (local variable or parameter)
+        -> self._destination_for    (this class, line 555)
+        -> self.move_subdir_var.get    (attribute of self (inherited or set at run time))
+        -> self.move_subdir_var.get().strip    (method or call on an expression)
+        -> self.selected_paths.items    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.delete    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.exists    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.get_children    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.insert    (attribute of self (inherited or set at run time))
+        -> self.selected_tree.item    (attribute of self (inherited or set at run time))
+        -> str    (builtin)    x2
+(module level)
+    -> main    (this file, line 1708)
+    -> Path    (from pathlib import Path)    x2
+    -> Path(__file__).resolve    (method or call on an expression)    x2
+    -> str    (builtin)    x2
+    -> sys.path.insert    (import sys)
+    -> SystemExit    (builtin)

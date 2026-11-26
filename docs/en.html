@@ -1,0 +1,1345 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directory Subcontents Fitter</title>
+<link rel="icon" href="images/favicon-icon.png">
+<style>
+/* Shared portfolio header and footer */
+:root{color-scheme:light dark;--bg:#f4f7fa;--ink:#17212f;--muted:#566779;--card:#fff;--line:#d6dfe8;--a1:#146c77;--on:#fff;--soft:#e6f2f4;--shadow:0 3px 10px #1e3a5a1a;--hh:64px}
+@media (prefers-color-scheme:dark){:root{--bg:#0e141c;--ink:#e8eef6;--muted:#9fb0c4;--card:#18212d;--line:#2a374a;--a1:#7cc8d0;--on:#0b1b1f;--soft:#1c2c38;--shadow:0 3px 12px #0009}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--hh) + 56px)}
+body{margin:0;font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);overflow-wrap:break-word}
+a{color:var(--a1)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #df8f40;outline-offset:2px}
+
+/* top bar: brand, funding badge, language (wide screens), hamburger (narrow screens) */
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--card) 96%,transparent);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);box-shadow:0 4px 22px #28444c10}
+.top-inner{max-width:1280px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:11px;flex:1;min-width:0;font-weight:850;color:var(--ink);text-decoration:none;line-height:1.15;letter-spacing:-.02em}
+.brand span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650;font-size:11px;letter-spacing:0;color:var(--muted);margin-top:3px}
+.brand-logo{display:block;width:40px;height:40px;object-fit:contain;border-radius:10px;border:1px solid var(--line);box-shadow:0 4px 13px #17394615;flex:none;background:#fff}
+.funding-alert{display:flex;align-items:center;gap:8px;text-decoration:none;flex:none}
+.funding-flash{background:#c81729;color:#fff;border:1px solid #9c1023;box-shadow:0 0 0 2px #ffffffa1;letter-spacing:.07em;border-radius:7px;padding:6px 9px;font:900 11px/1.1 system-ui,sans-serif;animation:fund-flash 1.6s ease-in-out infinite}
+.funding-status{display:none;color:#b3202d;font:740 11px/1.25 system-ui,sans-serif;max-width:190px}
+@media (prefers-color-scheme:dark){.funding-status{color:#ff9aa6}}
+@keyframes fund-flash{0%,100%{background:#bb1126;box-shadow:0 0 0 2px #ffffffa1}50%{background:#ff304b;box-shadow:0 0 0 3px #ffb0bb}}
+.lang{display:none;align-items:center;gap:6px;font-size:13px}
+.lang select,.dr-lang select{font:inherit;padding:7px 9px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px}
+.burger{flex:none;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;display:grid;place-content:center;gap:5px;padding:0}
+.burger span{display:block;width:20px;height:2px;border-radius:2px;background:var(--ink);transition:transform .2s,opacity .2s}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* step tracker: sits under the top bar on narrow screens while the tour is on screen */
+.tourbar{position:absolute;left:0;right:0;top:100%;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 6px 14px #0000001a}
+.tb-row{display:flex;align-items:center;gap:8px;padding:5px 10px;max-width:1280px;margin:auto}
+.tb-row button{flex:none;width:38px;height:34px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:700 18px/1 system-ui,sans-serif;cursor:pointer}
+.tb-row button:disabled{opacity:.35;cursor:default}
+.tb-txt{flex:1;min-width:0;line-height:1.25;font-size:13px}
+.tb-txt b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--a1)}
+.tb-txt span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
+.tb-prog{height:3px;background:var(--line)}.tb-prog i{display:block;height:100%;width:0;background:var(--a1);transition:width .25s}
+
+/* hamburger drawer */
+.scrim{position:fixed;inset:0;z-index:60;background:#0008;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:70;top:0;right:0;bottom:0;width:min(88vw,360px);background:var(--card);border-left:1px solid var(--line);box-shadow:-10px 0 30px #0004;display:flex;flex-direction:column;transform:translateX(104%);visibility:hidden;transition:transform .25s,visibility 0s .25s}
+.drawer.open{transform:none;visibility:visible;transition:transform .25s}
+.dr-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line)}
+.dr-head strong{font-size:16px}
+.dr-head button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:700 16px/1 system-ui,sans-serif;cursor:pointer}
+.dr-body{flex:1;overflow:auto;padding:12px 14px 24px;overscroll-behavior:contain}
+.dr-body h2,.side h2{font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.dr-lang{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:650}.dr-lang select{font-size:16px;width:100%;padding:10px}
+.dr-fund{display:flex;align-items:center;gap:10px;margin:14px 0 2px;padding:10px;border:1px solid #c8162933;border-radius:10px;text-decoration:none;color:#b3202d;font:740 12px/1.3 system-ui,sans-serif}
+@media (prefers-color-scheme:dark){.dr-fund{color:#ff9aa6}}
+.dr-body>.btn{margin-top:18px}
+
+/* page index (sidebar on wide screens, drawer on narrow screens) */
+.toc{display:flex;flex-direction:column;gap:2px}
+.toc a{display:flex;align-items:baseline;gap:8px;padding:7px 9px;border-radius:8px;border-left:3px solid transparent;text-decoration:none;color:var(--ink);font-size:13.5px;line-height:1.35}
+.toc a.lv2{margin-left:10px;color:var(--muted)}
+.toc a:hover{background:var(--soft)}
+.toc a.on{background:var(--soft);border-left-color:var(--a1);color:var(--ink);font-weight:700}
+.toc .n{flex:none;min-width:20px;height:20px;border-radius:10px;background:var(--a1);color:var(--on);font:800 11px/20px system-ui,sans-serif;text-align:center}
+.side{display:none}
+
+/* page layout */
+.layout{max-width:1280px;margin:auto;padding:14px 14px 24px;display:block}
+.hero,.panel{display:flow-root;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 14px;box-shadow:var(--shadow)}
+.hero{border-top:4px solid var(--a1)}
+.hero h1{font-size:1.5rem;line-height:1.2;margin:0 0 4px;letter-spacing:-.02em}.pill{display:inline-block;font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 10px}
+.hero h2,.panel>h2{font-size:1.1rem;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.panel>h2{margin-top:0}
+.hero p,.panel p{margin:6px 0}.panel ul,.panel ol{margin:6px 0;padding-left:22px}.panel pre{overflow:auto;background:var(--bg);padding:8px;border-radius:8px}.panel table{max-width:100%;display:block;overflow:auto}
+.splash{float:right;width:30%;max-width:190px;margin:0 0 8px 14px}.splash img{width:100%;max-height:110px;object-fit:contain;border-radius:8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0!important}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border:1px solid var(--a1);border-radius:999px;text-decoration:none;font-weight:700;font-size:13.5px;color:var(--a1);background:transparent}
+.btn.pri{background:var(--a1);color:var(--on)}
+.btn:hover{background:var(--soft)}.btn.pri:hover{filter:brightness(1.1);background:var(--a1)}
+
+/* guided tour: numbered steps, screenshot between the text blocks */
+.tour-meta{margin:2px 0 14px!important;font-size:12.5px;color:var(--muted)}
+.langtext{display:flow-root}
+.langtext img{max-width:100%;height:auto}
+.lead{margin:0 0 16px}
+.step{display:grid;grid-template-columns:36px minmax(0,1fr);column-gap:14px;position:relative;scroll-margin-top:calc(var(--hh) + 56px)}
+.step-n{position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:var(--a1);color:var(--on);font:800 15px/36px system-ui,sans-serif;text-align:center;margin-top:1px;transition:box-shadow .2s}
+.step::before{content:"";position:absolute;left:17px;top:40px;bottom:-4px;width:2px;background:var(--line)}
+.step:last-child::before{display:none}
+.step.cur .step-n{box-shadow:0 0 0 5px color-mix(in srgb,var(--a1) 28%,transparent)}
+.step-body{min-width:0;padding-bottom:26px}
+.step-body>h2,.step-body>h3,.step-body>h4{margin:5px 0 6px;font-size:1.15rem;line-height:1.3;border:0;padding:0}
+.step-body>p:first-of-type{margin-top:4px}
+.shot{margin:12px 0 8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg);box-shadow:var(--shadow);max-width:880px}
+.shot .bar{display:flex;align-items:center;gap:5px;padding:7px 10px;background:color-mix(in srgb,var(--ink) 7%,var(--card));font-size:12px;color:var(--muted)}
+.shot .bar i{display:block;width:9px;height:9px;border-radius:50%;background:var(--line);border:1px solid color-mix(in srgb,var(--muted) 40%,transparent)}
+.shot .bar span{margin-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.langtext .shot img,.shot img{display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;background:#fff;cursor:zoom-in}
+.shot figcaption{padding:6px 10px;font-size:12px;line-height:1.4;color:var(--muted)}
+.next{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:650;text-decoration:none;max-width:100%}
+.next:hover{background:var(--soft)}.next span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* gallery, posters, files */
+.gallery,.posters{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.gallery figure,.posters a{margin:0;border:1px solid var(--line);border-radius:8px;padding:5px;min-width:0;background:var(--bg)}
+.gallery img,.posters img{display:block;width:100%;height:100px;object-fit:contain;cursor:zoom-in}.posters img{height:150px}
+figcaption{font-size:11px;line-height:1.35;color:var(--muted)}
+#features-body:empty{display:none}
+#repository-files ul{columns:2 250px;column-gap:28px;list-style:none;padding-left:0}#repository-files li{break-inside:avoid;padding:2px 0}
+#repository-files a{overflow-wrap:anywhere;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+
+@media (min-width:700px){.funding-status{display:block}}
+@media (min-width:1000px){
+  .burger,.tourbar{display:none!important}.lang{display:flex}.side{display:block}
+  .layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:22px;padding-top:18px}
+  .side{position:sticky;top:calc(var(--hh) + 14px);align-self:start;max-height:calc(100vh - var(--hh) - 28px);overflow:auto;padding:2px 4px 14px 0}
+  .side h2:first-child{margin-top:0}
+  .hero,.panel{padding:20px 26px}
+  .hero h1{font-size:1.8rem}
+}
+@media (max-width:560px){
+  .layout{padding:10px 10px 18px}.hero,.panel{padding:13px 13px;border-radius:12px}
+  .splash{float:none;width:100%;max-width:none;margin:0 0 10px}.splash img{max-height:130px}
+  .step{grid-template-columns:28px minmax(0,1fr);column-gap:10px}
+  .step-n{width:28px;height:28px;font-size:13px;line-height:28px}.step::before{left:13px;top:32px}
+  .brand small{display:none}.brand-logo{width:36px;height:36px}
+}
+@media (max-width:360px){.funding-flash{padding:5px 6px;font-size:10px}}
+/* bottom: funding and links */
+.footer{background:#16434d;color:#fff5e8;padding:46px 0 34px;border-top:6px solid #efb75f;margin-top:10px}
+.footer .wrap{padding-top:0;padding-bottom:0}
+.footer-top{display:grid;grid-template-columns:1fr 1.2fr;gap:44px;align-items:start}
+.footer .kicker{font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:850;margin:0 0 7px;color:#e9bb7d}
+.footer h2{font:650 clamp(26px,3.2vw,40px)/1.14 Georgia,serif;letter-spacing:-.03em;color:#fff6e7;margin:0 0 13px}
+.footer p{color:#d4e4e1;max-width:500px;font-size:15px}
+.footer-brand-logo{display:block;width:78px;height:78px;object-fit:contain;border-radius:15px;border:1px solid #8cb6b2;margin-bottom:18px;background:#fff}
+.footer .funding-note{margin-top:20px;padding:16px 18px;border-left:4px solid #efb75f;background:#ffffff12;border-radius:0 9px 9px 0;color:#f3e5cc;max-width:520px}
+.footer .funding-note strong{color:#fff8e7}
+.support-art{display:flex;align-items:center;gap:12px;max-width:450px;font-size:13px;color:#e2ead9;margin-top:16px}
+.support-art img{width:65px;flex:0 0 65px;height:65px;border-radius:9px;object-fit:cover}
+.support-art span{line-height:1.55}
+.footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.footer-links a{display:block;border:1px solid #668d90;padding:14px;border-radius:10px;text-decoration:none;background:#ffffff0c;color:#ebf7f3;font-weight:720;font-size:13px;overflow-wrap:anywhere}
+.footer-links a:hover{background:#ffffff1e}
+.footer-links a span{display:block;font-size:11px;color:#b3ccca;font-weight:500;margin-top:3px}
+.footer-links a.support-link{border-color:#e5b874;background:#ecb75a15}.footer-links a.support-link:hover{background:#ecb75a30}
+.footer-bottom{border-top:1px solid #5b8183;margin-top:34px;padding-top:20px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:12px;color:#c1d4d0}
+.footer-bottom a{color:#ffdc9b}
+
+@media (max-width:760px){.footer-top{grid-template-columns:1fr;gap:30px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.funding-flash{animation:none}.drawer,.scrim,.burger span,.tb-prog i{transition:none}}
+@media print{.funding-flash{animation:none}.topbar{position:static}.burger,.drawer,.scrim,.tourbar,.side{display:none!important}.layout{display:block}}
+.footer .wrap{max-width:1280px;margin:auto;padding:0 16px}.footer{text-align:left;padding:20px 0 16px}.footer-top{gap:20px}.footer h2{font-size:24px}.footer p{font-size:13px}.footer-brand-logo{width:44px;height:44px;margin-bottom:8px}.footer-links a{padding:7px}.footer-bottom{margin-top:14px;padding-top:10px}
+/* poster overlay: 95% of the screen, zoomable, easy to leave */
+dialog#viewer{width:95vw;height:95vh;max-width:95vw;max-height:95vh;margin:auto;padding:0;border:0;border-radius:12px;background:#0a1418;color:#fff;overflow:hidden}
+dialog#viewer::backdrop{background:#000b}
+dialog#viewer[open]{display:flex;flex-direction:column}
+.v-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#000a;flex:none}
+.v-bar strong{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v-bar button{cursor:pointer;color:#fff;font:700 14px/1 system-ui,sans-serif;background:#fff2;border:1px solid #fff7;border-radius:18px;padding:8px 13px}
+.v-bar button:hover{background:#fff4}.v-bar .close{background:#b91c1c;border-color:#fff9}
+.v-stage{flex:1;overflow:auto;display:flex;padding:10px}
+.v-stage a{display:block;margin:auto;flex:none;cursor:pointer}
+.v-stage img{display:block;max-width:calc(95vw - 20px);max-height:calc(95vh - 76px);width:auto;height:auto;object-fit:contain}
+.v-hint{flex:none;text-align:center;font-size:12px;color:#c3d4d8;padding:4px 8px 7px}
+
+
+</style>
+</head><body id="top">
+<header class="topbar" id="topbar"><div class="top-inner">
+  <a class="brand" href="https://bmulti.github.io/" aria-label="Return to portfolio">
+    <img class="brand-logo" src="images/logo-logo.png" alt="" width="40" height="40">
+    <span>Directory Subcontents Fitter<small id="header-description">Python</small></span>
+  </a>
+  <a class="funding-alert" href="#connect" aria-label="Funding request and support links"><strong class="funding-flash">FUNDING</strong><span class="funding-status">Nov 2026 sites and links will work with funding</span></a>
+  <div class="lang"><label for="doclang" data-i="lang">Language</label><select id="doclang"><option value="en" selected>EN</option><option value="ar">AR</option><option value="ceb">CEB</option><option value="de">DE</option><option value="es">ES</option><option value="es-mx">ES-MX</option><option value="fr">FR</option><option value="id">ID</option><option value="it">IT</option><option value="ja">JA</option><option value="ko">KO</option><option value="ms">MS</option><option value="nl">NL</option><option value="pt">PT</option><option value="ru">RU</option><option value="zh">ZH</option></select></div>
+  <button type="button" class="burger" id="burger" aria-label="Menu" data-ia="menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
+</div>
+<div class="tourbar" id="tourbar" hidden><div class="tb-row"><button type="button" id="tb-prev" aria-label="Previous" data-ia="prev">‹</button><div class="tb-txt"><b id="tb-step"></b><span id="tb-title"></span></div><button type="button" id="tb-next" aria-label="Next" data-ia="next">›</button></div><div class="tb-prog"><i id="tb-fill"></i></div></div>
+</header>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Menu" data-ia="menu" aria-hidden="true">
+  <div class="dr-head"><strong data-i="menu">Menu</strong><button type="button" id="dr-close" aria-label="Close" data-ia="close">✕</button></div>
+  <div class="dr-body">
+    <div class="dr-lang"><label for="doclang2" data-i="lang">Language</label><span id="dr-sel"></span></div>
+    <a class="dr-fund" href="#connect"><strong class="funding-flash">FUNDING</strong><span>Nov 2026 sites and links will work with funding</span></a>
+    <h2 data-i="onpage">On this page</h2><div class="toc" id="toc-m"></div>
+    <div id="extra-m" hidden><h2 data-i="more">More pages</h2><div class="toc" id="extra-links-m"></div></div>
+    <a class="btn" href="https://bmulti.github.io/">Portfolio</a>
+  </div>
+</aside>
+<div class="layout">
+<nav class="side" id="page-index" aria-label="Page index"><h2 data-i="onpage">On this page</h2><div class="toc" id="toc"></div><div id="extra-pages" hidden><h2 data-i="more">More pages</h2><div class="toc" id="extra-links"></div></div></nav>
+<main id="application">
+  <section class="hero" id="description">
+    <a class="splash" href="https://bmulti.github.io/"><img src="images/splash-cpc-dir-sub-fit-spash.webp" alt="Application title image"></a>
+    <h1>Directory Subcontents Fitter</h1><span class="pill">Python · v11</span>
+    <h2>Description</h2><div id="description-text"><p>Sub directory move to</p></div>
+    <p class="actions"><a class="btn pri" href="#about" data-i="start">Start the tour</a><a class="btn" href="https://github.com/bmulti/directory-subcontents-fitter">Repository</a><a class="btn" href="https://bmulti.github.io/">Portfolio</a></p>
+  </section>
+  
+  <section class="panel tour" id="about"><h2>About this application (16 languages)</h2>
+    <p class="tour-meta" id="tour-meta"></p>
+    <div id="langtexts"><div class="langtext" data-lang="en"><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — what this application does
+Directory Subcontents Fitter examines folders, finds files using name and
+extension filters, moves files into subdirectories and finds duplicate files.
+It provides an Explorer, extension-based moves, a selected-file moving area,
+and checksum-based duplicate inspection. Files are not moved or deleted just
+by searching for them.
+
+Start with Explorer to examine a folder. Use Move by Extension to organize
+files into folders named after their extensions, or Move to Sub Directory to
+review a specific selection and its destinations before moving. Use
+De-DeDuplicate to identify matching files before deciding which to delete.
+
+Please make a backup of important data before moving, renaming or deleting
+files. A file move changes its location. Duplicate deletion is permanent.
+Right-click a folder and use Add to archive or ZIP, or copy the folder to
+another location before making extensive changes. Please be patient during
+large directory scans and checksum comparisons.
+
+[tab:explorer]
+# Explorer
+Enter a Directory or choose Browse, then click Find. The table displays
+matching filenames, modification dates, extensions and sizes. Select files
+using Select All or clear the selection with Select None. Double-click a
+file to open it with its associated application; Markdown files may open
+with the companion Markdown viewer when available.
+
+Starts with matches the beginning of a filename. Contains matches text
+anywhere within its filename. Extensions restricts results to specified
+file types, such as py, txt or jpg. Separate multiple extensions with
+commas, semicolons or spaces. Matching is not case sensitive. Recursive
+includes files in subfolders; with Recursive off, only files directly in
+the selected directory are listed. Click a column heading to change the
+sorting order.
+
+[tab:move-by-extension]
+# Move by Extension
+Choose the Downloads directory or another source folder with Browse. Enter
+optional Starts with, Contains and Extensions filters, choose Recursive if
+subfolders should be included, then click Find to review matching files.
+Select All and Select None control the current selection.
+
+Move Selected moves only highlighted entries. Move All moves every listed
+entry. Each file goes into a subfolder named for its extension in the file&#x27;s
+original parent folder: a PDF file goes into pdf, for example. A file with
+no extension goes into no_extension. The program lists the proposed moves
+and asks for confirmation. It asks separately before overwriting any
+existing destination file.
+
+[tab:move-to-sub-directory]
+# Move to Sub Directory
+Choose a Source directory with Browse. Use Starts with, Contains,
+Extensions and Recursive to narrow the search, then click Find. Matching
+files appear in the upper table. Add Selected adds highlighted matches to
+the lower table; Add All adds every match. Adding a file does not move it.
+
+The New subdirectory field controls the destination folder inside the
+selected Source directory. After adding files, its default comes from the
+first Python file stem in the lower list. If no Python file is present, the
+Starts with text is used, followed by Contains; otherwise it stays empty.
+The name can be edited. The lower table shows each proposed destination.
+
+Remove Selected takes highlighted files out of the lower list without
+changing them on disk. Clear List empties the lower list. Rename Selected
+changes the destination filename for one highlighted file; it does not
+immediately rename the original. Move Selected moves highlighted entries
+from the lower list. Move All moves all entries in that lower list.
+
+The Add shared_path to moved Python files when missing option is enabled
+by default. When enabled, moving a Python file may also insert shared_path
+import setup into that file if the code is missing. Turn this option off
+if Python source must not be modified. Proposed moves are logged and need
+confirmation. Existing destination files require separate overwrite
+confirmation; a move does not automatically create a backup.
+
+[tab:de-deduplicate]
+# De-DeDuplicate
+Choose a Directory and click Find Duplicates to compare file contents.
+Matching file sizes are checked using SHA256 checksums. Files in the same
+duplicate group have matching checksums. The table shows each group,
+filename, location, size and checksum.
+
+Recursive includes subfolders. User files only excludes names or folders
+beginning with a dot. Minimum bytes and Maximum bytes limit the file sizes
+to inspect; an empty maximum has no upper limit. Starts with, Contains and
+Extensions further restrict the search.
+
+First Duplicates selects the extra copies while leaving the first listed
+file in each group unselected. Last Duplicates selects the extra copies
+while leaving the last listed file in each group unselected. Select None
+clears the selection. Check the selected paths before using Delete Selected.
+
+Delete Selected permanently removes the highlighted files after a
+confirmation showing their paths. The application warns if every copy in
+a duplicate group is selected, but it does not prevent the deletion.
+Deletion cannot be undone. Keep a separate backup of anything important.
+
+[tab:log]
+# Log
+The Log records actions, proposed file moves, confirmations, errors and
+results during the current session. Enter text in Search to highlight
+matching entries. Matching lines only hides entries without that text.
+Clear Log removes the displayed session entries. The session log is not
+written to a log file and is cleared when the application closes.
+
+[tab:config]
+# Config
+Config displays the location of cpc_dir_sub_fit.json, which stores
+application settings. Choose or enter Last directory, then click Load
+Directory to open it in Explorer. The application stores such settings as
+the last location, selected tab, filters, sorting and window appearance.
+
+[tab:ui-choices]
+# UI Choices
+Choose the interface theme, spacing or density and window dimensions.
+Depending on the available shared UI Choices module, controls may also
+include Use Current Size and Apply + Save. These settings affect the
+appearance of the application, not the contents of the selected files.
+
+[tab:gateway]
+# Gateway
+Use the shared Gateway launcher, when available, to access registered
+applications, files, folders or links. Gateway operates separately from
+Explorer searches, file moves and duplicate deletion.
+</p></div><div class="langtext" data-lang="ar" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — وظيفة هذا التطبيق
+يفحص Directory Subcontents Fitter المجلدات ويبحث عن الملفات باستخدام مرشحات الاسم والامتداد، وينقل الملفات إلى مجلدات فرعية، ويكتشف الملفات المكررة. يوفر Explorer والنقل حسب الامتداد ومنطقة لنقل الملفات المحددة وفحص التكرارات باستخدام قيم التحقق. مجرد البحث عن الملفات لا ينقلها ولا يحذفها.
+
+ابدأ باستخدام Explorer لفحص مجلد. استخدم Move by Extension لتنظيم الملفات في مجلدات تحمل أسماء امتداداتها، أو Move to Sub Directory لمراجعة مجموعة محددة ووجهات نقلها قبل التنفيذ. استخدم De-DeDuplicate للتعرف على الملفات المتطابقة قبل تحديد ما يجب حذفه.
+
+أنشئ نسخة احتياطية من البيانات المهمة قبل نقل الملفات أو إعادة تسميتها أو حذفها. يؤدي النقل إلى تغيير موقع الملف، وحذف الملفات المكررة نهائي. انقر بزر الفأرة الأيمن على مجلد واستخدم Add to archive أو ZIP، أو انسخ المجلد إلى موقع آخر قبل إجراء تغييرات كبيرة. يرجى التحلي بالصبر عند فحص المجلدات الكبيرة ومقارنة قيم التحقق.
+
+[tab:explorer]
+# مستكشف الملفات
+أدخل مجلداً في Directory أو اختر Browse، ثم انقر Find. يعرض الجدول أسماء الملفات المطابقة وتواريخ تعديلها وامتداداتها وأحجامها. استخدم Select All لتحديد جميع الملفات أو Select None لإلغاء التحديد. انقر نقراً مزدوجاً على ملف لفتحه بتطبيقه المرتبط؛ ويمكن فتح ملفات Markdown في عارض Markdown المرافق إذا كان متاحاً.
+
+يبحث Starts with عن النص في بداية اسم الملف، بينما يبحث Contains عن النص في أي موضع من الاسم. يقصر Extensions النتائج على أنواع محددة مثل py وtxt وjpg. افصل بين الامتدادات المتعددة بفواصل أو فواصل منقوطة أو مسافات. لا يميز البحث بين الأحرف الكبيرة والصغيرة. يضم Recursive الملفات الموجودة في المجلدات الفرعية؛ وعند تعطيله لا تظهر إلا الملفات الموجودة مباشرة داخل المجلد المحدد. انقر عنوان العمود لتغيير ترتيب الفرز.
+
+[tab:move-by-extension]
+# النقل حسب الامتداد
+اختر مجلد Downloads أو مجلداً مصدراً آخر باستخدام Browse. أدخل مرشحات Starts with وContains وExtensions عند الحاجة، وفعّل Recursive لتضمين المجلدات الفرعية، ثم انقر Find لمراجعة الملفات المطابقة. يتحكم Select All وSelect None في التحديد الحالي.
+
+ينقل Move Selected العناصر المظللة فقط، بينما ينقل Move All جميع العناصر المدرجة. ينتقل كل ملف إلى مجلد فرعي يحمل اسم امتداده داخل مجلده الأصلي؛ فمثلاً ينتقل ملف PDF إلى المجلد pdf. ويذهب الملف الذي ليس له امتداد إلى no_extension. يعرض البرنامج عمليات النقل المقترحة ويطلب التأكيد. ويطلب تأكيداً منفصلاً قبل الكتابة فوق أي ملف موجود بالفعل في الوجهة.
+
+[tab:move-to-sub-directory]
+# النقل إلى مجلد فرعي
+اختر مجلد Source بواسطة Browse. استخدم Starts with وContains وExtensions وRecursive لتضييق نطاق البحث، ثم انقر Find. تظهر الملفات المطابقة في الجدول العلوي. يضيف Add Selected العناصر المحددة إلى الجدول السفلي، بينما يضيف Add All جميع العناصر. إضافة ملف إلى القائمة لا تنقله.
+
+يحدد حقل New subdirectory مجلد الوجهة داخل Source. بعد إضافة الملفات، تؤخذ القيمة الافتراضية من اسم أول ملف Python في القائمة السفلية من دون امتداده. وإذا لم يوجد ملف Python، يستخدم نص Starts with أولاً ثم Contains؛ وإذا لم يتوفر أي منهما يبقى الحقل فارغاً. يمكن تعديل الاسم. يعرض الجدول السفلي الوجهة المقترحة لكل ملف.
+
+يزيل Remove Selected الملفات المظللة من القائمة السفلية من دون تغييرها على القرص. ويفرغ Clear List القائمة السفلية. يغير Rename Selected اسم الملف في الوجهة لملف مظلل واحد، ولا يعيد تسمية الملف الأصلي فوراً. ينقل Move Selected العناصر المحددة من القائمة السفلية، بينما ينقل Move All جميع عناصر تلك القائمة.
+
+يكون خيار Add shared_path to moved Python files when missing مفعلاً افتراضياً. عند تفعيله، قد يضيف البرنامج إعداد استيراد shared_path إلى ملف Python أثناء نقله إذا كان الرمز المطلوب غير موجود. عطّل هذا الخيار إذا كان يجب عدم تعديل الشفرة المصدرية لملفات Python. تُسجل عمليات النقل المقترحة وتتطلب تأكيداً. تتطلب الكتابة فوق الملفات الموجودة في الوجهة تأكيداً منفصلاً؛ ولا ينشئ النقل نسخة احتياطية تلقائياً.
+
+[tab:de-deduplicate]
+# معالجة الملفات المكررة
+اختر مجلداً في Directory وانقر Find Duplicates لمقارنة محتويات الملفات. تُفحص الملفات المتساوية في الحجم باستخدام قيم تحقق SHA256. تحمل الملفات في مجموعة التكرار نفسها قيم تحقق متطابقة. يعرض الجدول المجموعة واسم الملف وموقعه وحجمه وقيمة التحقق.
+
+يضم Recursive المجلدات الفرعية. يستبعد User files only أسماء الملفات أو المجلدات التي تبدأ بنقطة. يحدد Minimum bytes وMaximum bytes أحجام الملفات التي ستُفحص؛ وترك الحد الأقصى فارغاً يعني عدم وجود حد أعلى. تزيد Starts with وContains وExtensions من تقييد البحث.
+
+يحدد First Duplicates النسخ الإضافية ويترك أول ملف مدرج في كل مجموعة من دون تحديد. ويحدد Last Duplicates النسخ الإضافية ويترك آخر ملف من دون تحديد. يلغي Select None التحديد. تحقق من مسارات الملفات المحددة قبل استخدام Delete Selected.
+
+يحذف Delete Selected الملفات المظللة نهائياً بعد عرض مساراتها وطلب التأكيد. يحذر التطبيق إذا كانت جميع النسخ في مجموعة مكررة محددة، لكنه لا يمنع الحذف. لا يمكن التراجع عن الحذف. احتفظ بنسخة احتياطية مستقلة من أي بيانات مهمة.
+
+[tab:log]
+# السجل
+يسجل Log الإجراءات وعمليات النقل المقترحة والتأكيدات والأخطاء والنتائج خلال الجلسة الحالية. أدخل نصاً في Search لإبراز السجلات المطابقة. يخفي Matching lines only السجلات التي لا تحتوي ذلك النص. يمحو Clear Log سجلات الجلسة الظاهرة. لا يُحفظ سجل الجلسة في ملف، ويُمسح عند إغلاق التطبيق.
+
+[tab:config]
+# الإعدادات
+يعرض Config موقع الملف cpc_dir_sub_fit.json الذي يحفظ إعدادات التطبيق. اختر Last directory أو أدخله، ثم انقر Load Directory لفتحه في Explorer. يحتفظ التطبيق بإعدادات مثل آخر موقع وعلامة التبويب المحددة والمرشحات والترتيب ومظهر النافذة.
+
+[tab:ui-choices]
+# خيارات الواجهة
+اختر مظهر الواجهة والمسافات أو كثافة العرض وأبعاد النافذة. بحسب وحدة UI Choices المشتركة المتوفرة، قد تتوفر أيضاً عناصر Use Current Size وApply + Save. تؤثر هذه الإعدادات في مظهر التطبيق ولا تغير محتويات الملفات المحددة.
+
+[tab:gateway]
+# Gateway
+استخدم مشغّل Gateway المشترك، عند توفره، للوصول إلى التطبيقات والملفات والمجلدات والروابط المسجلة. يعمل Gateway بصورة مستقلة عن عمليات البحث في Explorer ونقل الملفات وحذف التكرارات.
+</p></div><div class="langtext" data-lang="ceb" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — unsay buhat sa aplikasyon
+Ang Directory Subcontents Fitter mosusi sa mga folder, mangita og mga file gamit ang mga filter sa ngalan ug extension, mobalhin sa mga file ngadto sa mga subdirectory, ug mangita og doble nga mga file. Aduna kini Explorer, pagbalhin sumala sa extension, lugar alang sa pagbalhin sa gipiling mga file, ug pagsusi sa mga duplicate pinaagi sa checksum. Ang pagpangita lang dili mobalhin o motangtang og file.
+
+Sugdi sa Explorer aron susihon ang usa ka folder. Gamita ang Move by Extension aron ibutang ang mga file sa mga folder nga ginganlan sumala sa ilang extension, o ang Move to Sub Directory aron tan-awon ang napiling mga file ug mga destinasyon sa dili pa ibalhin. Gamita ang De-DeDuplicate aron makita ang managsamang file sa dili pa magdesisyon kon unsa ang papason.
+
+Paghimo og backup sa importanteng datos sa dili pa mobalhin, mag-usab og ngalan, o mopapas sa mga file. Ang pagbalhin sa file mag-usab sa lokasyon niini. Permanente ang pagpapas sa mga duplicate. I-right-click ang folder ug gamita ang Add to archive o ZIP, o kopyaha ang folder ngadto sa laing lokasyon sa dili pa maghimo og dagkong kausaban. Pagpailob samtang nag-scan sa dagkong direktoryo ug nagtandi sa mga checksum.
+
+[tab:explorer]
+# Explorer
+Isulod ang folder sa Directory o pilia ang Browse, dayon i-klik ang Find. Ang talaan nagpakita sa mga ngalan sa file nga nagtugma, petsa sa pag-usab, extension, ug gidak-on. Gamita ang Select All aron pilion ang tanan o Select None aron wagtangon ang pagpili. I-double-click ang file aron ablihan sa iyang nakaugnay nga aplikasyon; ang mga Markdown file mahimong maablihan sa kauban nga Markdown viewer kon anaa kini.
+
+Ang Starts with mangita sa sinugdanan sa ngalan sa file. Ang Contains mangita og teksto bisan asa sa ngalan. Ang Extensions molimit sa resulta ngadto sa mga tipo sama sa py, txt o jpg. Bulaga ang daghang extension gamit ang comma, semicolon o espasyo. Dili maglain ang dagko ug gagmay nga letra. Ang Recursive moapil sa mga file sa subfolder; kon dili kini aktibo, ang mga file nga direkta lang sa gipiling folder ang makita. I-klik ang ulohan sa kolum aron usbon ang pagkahan-ay.
+
+[tab:move-by-extension]
+# Pagbalhin sumala sa extension
+Pilia ang Downloads o laing gigikanang folder pinaagi sa Browse. Isulod kon gikinahanglan ang mga filter nga Starts with, Contains ug Extensions, pilia ang Recursive kon apilon ang subfolder, dayon i-klik ang Find aron susihon ang mga resulta. Ang Select All ug Select None mokontrol sa kasamtangang pagpili.
+
+Ang Move Selected mobalhin lang sa gipili nga mga entrada. Ang Move All mobalhin sa tanang entrada sa listahan. Ang matag file ibalhin sa subfolder nga ginganlan sa extension niini sulod sa orihinal nga parent folder: pananglitan, ang PDF file ibutang sa pdf. Ang file nga walay extension ibutang sa no_extension. Ipakita sa programa ang gisugyot nga mga pagbalhin ug mangayo og kumpirmasyon. Mangayo kini og lahi nga kumpirmasyon sa dili pa pulihan ang kasamtangang file sa destinasyon.
+
+[tab:move-to-sub-directory]
+# Pagbalhin ngadto sa subdirectory
+Pilia ang Source nga folder pinaagi sa Browse. Gamita ang Starts with, Contains, Extensions ug Recursive aron limitahan ang pagpangita, dayon i-klik ang Find. Ang nagtugmang mga file makita sa taas nga talaan. Ang Add Selected modugang sa gipili ngadto sa ubos nga talaan; ang Add All modugang sa tanan. Ang pagdugang sa lista dili magbalhin sa file.
+
+Ang New subdirectory maoy magtakda sa destinasyong folder sulod sa Source. Human magdugang og file, ang default nga ngalan gikan sa ngalan nga walay extension sa unang Python file sa ubos nga lista. Kon walay Python file, gamiton una ang teksto sa Starts with, dayon ang Contains; kon wala usab, magpabiling walay sulod. Mahimong usbon ang ngalan. Ang ubos nga talaan magpakita sa matag gisugyot nga destinasyon.
+
+Ang Remove Selected magkuha sa gipili nga mga file gikan sa ubos nga lista nga dili mag-usab sa mga file sa disk. Ang Clear List mohawan sa ubos nga lista. Ang Rename Selected mag-usab sa ngalan sa file sa destinasyon alang sa usa ka gipiling file, apan dili dayon mag-usab sa orihinal nga ngalan. Ang Move Selected mobalhin sa gipili sa ubos nga lista; ang Move All mobalhin sa tanang entrada niini.
+
+Ang Add shared_path to moved Python files when missing aktibo sa default. Kon aktibo, sa pagbalhin sa Python file mahimo usab nga idugang niini ang shared_path import setup kon wala pa ang maong code. I-off kini kon dili angay usbon ang Python source code. Ang gisugyot nga mga pagbalhin i-log ug kinahanglan og kumpirmasyon. Lahi nga kumpirmasyon ang gikinahanglan aron pulihan ang file nga anaa na sa destinasyon; ang pagbalhin dili awtomatikong maghimo og backup.
+
+[tab:de-deduplicate]
+# Pagsusi sa mga duplicate
+Pilia ang folder sa Directory ug i-klik ang Find Duplicates aron itandi ang sulod sa mga file. Ang mga file nga parehog gidak-on susihon gamit ang SHA256 checksum. Ang mga file sa usa ka grupo sa duplicate adunay parehog checksum. Ang talaan nagpakita sa grupo, ngalan sa file, lokasyon, gidak-on ug checksum.
+
+Ang Recursive moapil sa mga subfolder. Ang User files only dili moapil sa mga ngalan sa file o folder nga nagsugod sa tuldok. Ang Minimum bytes ug Maximum bytes molimit sa gidak-on sa file nga susihon; kon walay sulod ang maximum, walay kinatas-ang limitasyon. Ang Starts with, Contains ug Extensions dugang nga molimit sa pagpangita.
+
+Ang First Duplicates mopili sa dugang nga mga kopya apan dili mopili sa unang file nga nalista sa matag grupo. Ang Last Duplicates mopili sa dugang nga mga kopya apan dili mopili sa kataposang file. Ang Select None mowagtang sa pagpili. Susiha ang gipiling mga path sa dili pa gamiton ang Delete Selected.
+
+Ang Delete Selected permanenteng mopapas sa gipiling mga file human sa kumpirmasyon nga magpakita sa ilang mga path. Ang aplikasyon mopahimangno kon napili ang tanang kopya sa usa ka duplicate nga grupo, apan dili niini pugngan ang pagpapas. Dili na mabawi ang pagpapas. Pagtipig og lahi nga backup sa bisan unsang importanteng datos.
+
+[tab:log]
+# Log
+Ang Log morekord sa mga aksyon, gisugyot nga pagbalhin sa file, kumpirmasyon, sayop ug resulta sa kasamtangang sesyon. Isulod ang teksto sa Search aron ipasiugda ang nagtugmang mga entrada. Ang Matching lines only motago sa mga entrada nga wala sa maong teksto. Ang Clear Log mohawan sa makita nga mga rekord sa sesyon. Ang log sa sesyon dili isulat sa log file ug mahawan kon isira ang aplikasyon.
+
+[tab:config]
+# Config
+Ang Config magpakita sa lokasyon sa cpc_dir_sub_fit.json nga nagtipig sa mga setting sa aplikasyon. Pilia o isulod ang Last directory, dayon i-klik ang Load Directory aron ablihan kini sa Explorer. Ang aplikasyon magtipig sa kataposang lokasyon, gipiling tab, mga filter, pagkahan-ay ug dagway sa bintana.
+
+[tab:ui-choices]
+# Mga kapilian sa interface
+Pilia ang tema sa interface, gilay-on o density, ug mga sukod sa bintana. Depende sa anaa nga shared UI Choices module, mahimo usab nga makita ang Use Current Size ug Apply + Save. Ang mga setting makaapekto sa dagway sa aplikasyon, dili sa sulod sa gipiling mga file.
+
+[tab:gateway]
+# Gateway
+Gamita ang shared Gateway launcher kon anaa kini aron maablihan ang narehistrong mga aplikasyon, file, folder o link. Ang Gateway nagtrabaho nga bulag sa pagpangita sa Explorer, pagbalhin sa file ug pagpapas sa mga duplicate.
+</p></div><div class="langtext" data-lang="de" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — Aufgaben dieser Anwendung
+Directory Subcontents Fitter untersucht Ordner, findet Dateien mit Namens- und Erweiterungsfiltern, verschiebt Dateien in Unterordner und erkennt Duplikate. Die Anwendung bietet einen Explorer, das Verschieben nach Dateierweiterung, einen Bereich für ausgewählte Dateien sowie die Duplikatprüfung anhand von Prüfsummen. Durch die Suche werden keine Dateien verschoben oder gelöscht.
+
+Beginnen Sie mit Explorer, um einen Ordner zu untersuchen. Mit Move by Extension ordnen Sie Dateien in Ordner nach ihrer Erweiterung ein. Mit Move to Sub Directory prüfen Sie ausgewählte Dateien und ihre Zielorte vor dem Verschieben. Mit De-DeDuplicate ermitteln Sie gleiche Dateien, bevor Sie entscheiden, welche gelöscht werden sollen.
+
+Sichern Sie wichtige Daten, bevor Sie Dateien verschieben, umbenennen oder löschen. Beim Verschieben ändert sich der Speicherort. Das Löschen von Duplikaten ist dauerhaft. Klicken Sie mit der rechten Maustaste auf einen Ordner und verwenden Sie Add to archive oder ZIP, oder kopieren Sie den Ordner vor umfangreichen Änderungen an einen anderen Ort. Bei großen Verzeichnissuchen und Prüfsummenvergleichen ist Geduld erforderlich.
+
+[tab:explorer]
+# Datei-Explorer
+Geben Sie unter Directory einen Ordner ein oder wählen Sie Browse und klicken Sie auf Find. Die Tabelle zeigt passende Dateinamen, Änderungsdaten, Erweiterungen und Größen. Wählen Sie Dateien mit Select All aus oder heben Sie die Auswahl mit Select None auf. Doppelklicken Sie auf eine Datei, um sie mit der zugeordneten Anwendung zu öffnen. Markdown-Dateien können mit dem ergänzenden Markdown-Viewer geöffnet werden, sofern er verfügbar ist.
+
+Starts with sucht am Anfang des Dateinamens. Contains findet Text an beliebiger Stelle im Namen. Extensions beschränkt die Ergebnisse auf Dateitypen wie py, txt oder jpg. Trennen Sie mehrere Erweiterungen durch Kommas, Semikolons oder Leerzeichen. Groß- und Kleinschreibung spielen keine Rolle. Recursive bezieht Unterordner ein; ohne Recursive werden nur Dateien unmittelbar im ausgewählten Ordner aufgelistet. Klicken Sie auf eine Spaltenüberschrift, um die Sortierung zu ändern.
+
+[tab:move-by-extension]
+# Nach Erweiterung verschieben
+Wählen Sie Downloads oder einen anderen Quellordner mit Browse. Geben Sie bei Bedarf Starts with, Contains und Extensions an, aktivieren Sie Recursive für Unterordner und klicken Sie auf Find, um die Treffer zu prüfen. Select All und Select None steuern die aktuelle Auswahl.
+
+Move Selected verschiebt nur markierte Einträge. Move All verschiebt sämtliche aufgelisteten Einträge. Jede Datei wird in ihrem bisherigen übergeordneten Ordner in einen Unterordner mit dem Namen ihrer Erweiterung verschoben: Eine PDF-Datei kommt beispielsweise in pdf. Dateien ohne Erweiterung kommen in no_extension. Das Programm zeigt die geplanten Verschiebungen und verlangt eine Bestätigung. Vor dem Überschreiben vorhandener Zieldateien wird gesondert gefragt.
+
+[tab:move-to-sub-directory]
+# In Unterordner verschieben
+Wählen Sie einen Source-Ordner mit Browse. Schränken Sie die Suche durch Starts with, Contains, Extensions und Recursive ein und klicken Sie auf Find. Passende Dateien erscheinen in der oberen Tabelle. Add Selected fügt markierte Treffer zur unteren Tabelle hinzu; Add All fügt alle hinzu. Beim Hinzufügen wird nichts verschoben.
+
+Das Feld New subdirectory legt den Zielordner innerhalb von Source fest. Nach dem Hinzufügen wird als Standard der Dateiname ohne Erweiterung der ersten Python-Datei in der unteren Liste verwendet. Gibt es dort keine Python-Datei, wird der Text aus Starts with, danach aus Contains verwendet; andernfalls bleibt das Feld leer. Der Name ist bearbeitbar. Die untere Tabelle zeigt alle geplanten Zielorte.
+
+Remove Selected entfernt markierte Dateien aus der unteren Liste, ohne sie auf dem Datenträger zu verändern. Clear List leert die Liste. Rename Selected ändert den Zieldateinamen einer markierten Datei, nicht sofort den ursprünglichen Namen. Move Selected verschiebt markierte Einträge der unteren Liste; Move All verschiebt alle Einträge dieser Liste.
+
+Add shared_path to moved Python files when missing ist standardmäßig eingeschaltet. Bei einer Verschiebung kann die Anwendung fehlenden shared_path-Importcode in eine Python-Datei einfügen. Deaktivieren Sie die Option, wenn Python-Quellcode unverändert bleiben muss. Geplante Verschiebungen werden protokolliert und müssen bestätigt werden. Vor dem Überschreiben vorhandener Zieldateien ist eine separate Bestätigung erforderlich; eine Verschiebung erstellt nicht automatisch eine Sicherungskopie.
+
+[tab:de-deduplicate]
+# Duplikate entfernen
+Wählen Sie unter Directory einen Ordner und klicken Sie auf Find Duplicates, um Dateiinhalte zu vergleichen. Dateien gleicher Größe werden über SHA256-Prüfsummen verglichen. Dateien derselben Duplikatgruppe haben identische Prüfsummen. Die Tabelle zeigt Gruppe, Dateiname, Speicherort, Größe und Prüfsumme.
+
+Recursive umfasst Unterordner. User files only schließt Dateien und Ordner aus, deren Name mit einem Punkt beginnt. Minimum bytes und Maximum bytes begrenzen die untersuchten Dateigrößen; ein leeres Maximum bedeutet keine Obergrenze. Starts with, Contains und Extensions schränken die Suche weiter ein.
+
+First Duplicates wählt zusätzliche Kopien aus und lässt die erste aufgelistete Datei jeder Gruppe unmarkiert. Last Duplicates wählt zusätzliche Kopien aus und lässt die letzte Datei jeder Gruppe unmarkiert. Select None hebt die Auswahl auf. Prüfen Sie die ausgewählten Pfade, bevor Sie Delete Selected verwenden.
+
+Delete Selected löscht markierte Dateien nach einer Bestätigung mit Pfadangaben dauerhaft. Die Anwendung warnt, wenn alle Kopien einer Duplikatgruppe ausgewählt wurden, verhindert die Löschung aber nicht. Der Vorgang lässt sich nicht rückgängig machen. Bewahren Sie wichtige Daten in einer gesonderten Sicherung auf.
+
+[tab:log]
+# Protokoll
+Log erfasst Aktionen, geplante Verschiebungen, Bestätigungen, Fehler und Ergebnisse der aktuellen Sitzung. Geben Sie unter Search Text ein, um passende Einträge hervorzuheben. Matching lines only blendet Einträge ohne diesen Text aus. Clear Log entfernt die sichtbaren Sitzungseinträge. Das Sitzungsprotokoll wird nicht als Datei gespeichert und beim Schließen der Anwendung gelöscht.
+
+[tab:config]
+# Konfiguration
+Config zeigt den Speicherort von cpc_dir_sub_fit.json mit den Anwendungseinstellungen. Wählen Sie Last directory oder geben Sie einen Pfad ein und klicken Sie auf Load Directory, um den Ordner in Explorer zu öffnen. Gespeichert werden unter anderem der letzte Speicherort, der ausgewählte Reiter, Filter, Sortierung und Fensterdarstellung.
+
+[tab:ui-choices]
+# Oberfläche anpassen
+Wählen Sie Oberflächendesign, Abstände beziehungsweise Dichte und Fenstergröße. Je nach verfügbarem gemeinsamem Modul UI Choices können auch Use Current Size und Apply + Save angezeigt werden. Diese Einstellungen beeinflussen die Darstellung, nicht den Inhalt der ausgewählten Dateien.
+
+[tab:gateway]
+# Gateway
+Verwenden Sie den gemeinsamen Starter Gateway, sofern vorhanden, um registrierte Anwendungen, Dateien, Ordner oder Links zu öffnen. Gateway arbeitet unabhängig von Explorer-Suchen, Dateiverschiebungen und dem Löschen von Duplikaten.
+</p></div><div class="langtext" data-lang="es" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — qué hace esta aplicación
+Directory Subcontents Fitter examina carpetas, encuentra archivos mediante filtros de nombre y extensión, mueve archivos a subdirectorios y detecta duplicados. Dispone de un explorador, movimientos por extensión, una sección para mover archivos seleccionados y una inspección de duplicados mediante sumas de comprobación. Buscar archivos no los mueve ni los elimina.
+
+Comience en Explorer para examinar una carpeta. Utilice Move by Extension para organizar archivos en carpetas con el nombre de su extensión, o Move to Sub Directory para revisar una selección concreta y sus destinos antes de moverla. Utilice De-DeDuplicate para identificar archivos coincidentes antes de decidir cuáles eliminar.
+
+Haga una copia de seguridad de los datos importantes antes de mover, cambiar el nombre o eliminar archivos. Mover un archivo cambia su ubicación. Eliminar duplicados es permanente. Haga clic con el botón derecho en una carpeta y utilice Add to archive o ZIP, o copie la carpeta a otra ubicación antes de realizar cambios importantes. Tenga paciencia durante los análisis de directorios grandes y las comparaciones de sumas de comprobación.
+
+[tab:explorer]
+# Explorador
+Introduzca una carpeta en Directory o seleccione Browse y después pulse Find. La tabla muestra los nombres de archivo coincidentes, las fechas de modificación, las extensiones y los tamaños. Seleccione archivos mediante Select All o anule la selección con Select None. Haga doble clic en un archivo para abrirlo con su aplicación asociada; los archivos Markdown pueden abrirse con el visor Markdown complementario, si está disponible.
+
+Starts with busca coincidencias al principio del nombre de archivo. Contains busca texto en cualquier parte del nombre. Extensions restringe los resultados a tipos como py, txt o jpg. Separe varias extensiones con comas, puntos y coma o espacios. Las coincidencias no distinguen mayúsculas de minúsculas. Recursive incluye archivos de subcarpetas; si está desactivado, solo se muestran archivos directamente en la carpeta seleccionada. Pulse un encabezado de columna para cambiar el orden de clasificación.
+
+[tab:move-by-extension]
+# Mover por extensión
+Elija la carpeta Downloads u otra carpeta de origen con Browse. Introduzca filtros opcionales en Starts with, Contains y Extensions, active Recursive si desea incluir subcarpetas y pulse Find para revisar los archivos coincidentes. Select All y Select None controlan la selección actual.
+
+Move Selected mueve solo las entradas resaltadas. Move All mueve todas las entradas de la lista. Cada archivo pasa a una subcarpeta con el nombre de su extensión dentro de su carpeta original: por ejemplo, un archivo PDF pasa a pdf. Un archivo sin extensión pasa a no_extension. El programa muestra los movimientos propuestos y pide confirmación. Solicita otra confirmación antes de sobrescribir cualquier archivo existente en el destino.
+
+[tab:move-to-sub-directory]
+# Mover a un subdirectorio
+Elija una carpeta Source mediante Browse. Utilice Starts with, Contains, Extensions y Recursive para limitar la búsqueda y pulse Find. Los archivos coincidentes aparecen en la tabla superior. Add Selected agrega los seleccionados a la tabla inferior; Add All agrega todos. Agregar un archivo no lo mueve.
+
+El campo New subdirectory determina la carpeta de destino dentro de Source. Después de agregar archivos, el valor predeterminado procede del nombre sin extensión del primer archivo Python de la lista inferior. Si no hay ninguno, se utiliza el texto de Starts with, después el de Contains; si tampoco existe, queda vacío. Puede modificar el nombre. La tabla inferior muestra cada destino propuesto.
+
+Remove Selected retira los archivos resaltados de la lista inferior sin modificarlos en el disco. Clear List vacía esa lista. Rename Selected cambia el nombre de destino de un archivo resaltado; no cambia inmediatamente el nombre del original. Move Selected mueve los resaltados de la lista inferior. Move All mueve todas las entradas de esa lista.
+
+La opción Add shared_path to moved Python files when missing está activada de forma predeterminada. Al mover un archivo Python, puede insertar la configuración de importación shared_path si falta ese código. Desactive la opción si no deben modificarse los archivos fuente Python. Los movimientos propuestos se registran y requieren confirmación. Para sobrescribir archivos existentes en el destino se solicita una confirmación independiente; mover no crea automáticamente una copia de seguridad.
+
+[tab:de-deduplicate]
+# Eliminar duplicados
+Elija una carpeta en Directory y pulse Find Duplicates para comparar el contenido de los archivos. Los archivos del mismo tamaño se comprueban mediante sumas SHA256. Los archivos del mismo grupo de duplicados tienen sumas idénticas. La tabla muestra el grupo, el nombre, la ubicación, el tamaño y la suma de comprobación de cada archivo.
+
+Recursive incluye subcarpetas. User files only excluye nombres o carpetas que comienzan por un punto. Minimum bytes y Maximum bytes limitan los tamaños de archivo que se analizan; dejar vacío el máximo significa que no hay límite superior. Starts with, Contains y Extensions restringen aún más la búsqueda.
+
+First Duplicates selecciona las copias adicionales y deja sin seleccionar el primer archivo de cada grupo. Last Duplicates selecciona las copias adicionales y deja sin seleccionar el último archivo de cada grupo. Select None anula la selección. Compruebe las rutas seleccionadas antes de utilizar Delete Selected.
+
+Delete Selected elimina permanentemente los archivos resaltados tras una confirmación que muestra sus rutas. La aplicación advierte si se seleccionan todas las copias de un grupo de duplicados, pero no impide la eliminación. Esta acción no se puede deshacer. Conserve una copia de seguridad independiente de todo lo importante.
+
+[tab:log]
+# Registro
+Log registra las acciones, los movimientos propuestos, las confirmaciones, los errores y los resultados durante la sesión actual. Escriba texto en Search para resaltar las entradas coincidentes. Matching lines only oculta las entradas que no contienen ese texto. Clear Log borra las entradas visibles de la sesión. El registro de sesión no se guarda en un archivo y se borra al cerrar la aplicación.
+
+[tab:config]
+# Configuración
+Config muestra la ubicación de cpc_dir_sub_fit.json, que almacena la configuración de la aplicación. Elija o introduzca Last directory y pulse Load Directory para abrirla en Explorer. La aplicación guarda ajustes como la última ubicación, la pestaña seleccionada, los filtros, la clasificación y la apariencia de la ventana.
+
+[tab:ui-choices]
+# Opciones de interfaz
+Seleccione el tema de la interfaz, el espaciado o la densidad y las dimensiones de la ventana. Según el módulo compartido UI Choices disponible, también pueden aparecer los controles Use Current Size y Apply + Save. Estos ajustes afectan a la apariencia de la aplicación, no al contenido de los archivos seleccionados.
+
+[tab:gateway]
+# Acceso a aplicaciones
+Utilice el lanzador compartido Gateway, cuando esté disponible, para acceder a aplicaciones, archivos, carpetas o enlaces registrados. Gateway funciona por separado de las búsquedas de Explorer, los movimientos de archivos y la eliminación de duplicados.
+</p></div><div class="langtext" data-lang="es-mx" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — qué hace esta aplicación
+Directory Subcontents Fitter examina carpetas, encuentra archivos mediante filtros de nombre y extensión, mueve archivos a subdirectorios y detecta duplicados. Dispone de un explorador, movimientos por extensión, una sección para mover archivos seleccionados y una inspección de duplicados mediante sumas de verificación. Buscar archivos no los mueve ni los elimina.
+
+Comience en Explorer para examinar una carpeta. Utilice Move by Extension para organizar archivos en carpetas con el nombre de su extensión, o Move to Sub Directory para revisar una selección concreta y sus destinos antes de moverla. Utilice De-DeDuplicate para identificar archivos coincidentes antes de decidir cuáles eliminar.
+
+Haga un respaldo de los datos importantes antes de mover, cambiar el nombre o eliminar archivos. Mover un archivo cambia su ubicación. Eliminar duplicados es permanente. Haga clic con el botón derecho en una carpeta y utilice Add to archive o ZIP, o copie la carpeta a otra ubicación antes de realizar cambios importantes. Tenga paciencia durante los análisis de directorios grandes y las comparaciones de sumas de verificación.
+
+[tab:explorer]
+# Explorador
+Introduzca una carpeta en Directory o seleccione Browse y después haga clic en Find. La tabla muestra los nombres de archivo coincidentes, las fechas de modificación, las extensiones y los tamaños. Seleccione archivos mediante Select All o quite la selección con Select None. Haga doble clic en un archivo para abrirlo con su aplicación asociada; los archivos Markdown pueden abrirse con el visor Markdown complementario, si está disponible.
+
+Starts with busca coincidencias al principio del nombre de archivo. Contains busca texto en cualquier parte del nombre. Extensions restringe los resultados a tipos como py, txt o jpg. Separe varias extensiones con comas, puntos y coma o espacios. Las coincidencias no distinguen mayúsculas de minúsculas. Recursive incluye archivos de subcarpetas; si está desactivado, solo se muestran archivos directamente en la carpeta seleccionada. Haga clic en un encabezado de columna para cambiar el orden de los resultados.
+
+[tab:move-by-extension]
+# Mover por extensión
+Seleccione la carpeta Downloads u otra carpeta de origen con Browse. Introduzca filtros opcionales en Starts with, Contains y Extensions, active Recursive si desea incluir subcarpetas y haga clic en Find para revisar los archivos coincidentes. Select All y Select None controlan la selección actual.
+
+Move Selected mueve solo las entradas resaltadas. Move All mueve todas las entradas de la lista. Cada archivo pasa a una subcarpeta con el nombre de su extensión dentro de su carpeta original: por ejemplo, un archivo PDF pasa a pdf. Un archivo sin extensión pasa a no_extension. El programa muestra los movimientos propuestos y pide confirmación. Solicita otra confirmación antes de sobrescribir cualquier archivo existente en el destino.
+
+[tab:move-to-sub-directory]
+# Mover a un subdirectorio
+Seleccione una carpeta Source mediante Browse. Utilice Starts with, Contains, Extensions y Recursive para limitar la búsqueda y haga clic en Find. Los archivos coincidentes aparecen en la tabla superior. Add Selected agrega los seleccionados a la tabla inferior; Add All agrega todos. Agregar un archivo no lo mueve.
+
+El campo New subdirectory determina la carpeta de destino dentro de Source. Después de agregar archivos, el valor predeterminado procede del nombre sin extensión del primer archivo Python de la lista inferior. Si no hay ninguno, se utiliza el texto de Starts with, después el de Contains; si tampoco existe, queda vacío. Puede modificar el nombre. La tabla inferior muestra cada destino propuesto.
+
+Remove Selected retira los archivos resaltados de la lista inferior sin modificarlos en el disco. Clear List vacía esa lista. Rename Selected cambia el nombre de destino de un archivo resaltado; no cambia inmediatamente el nombre del original. Move Selected mueve los resaltados de la lista inferior. Move All mueve todas las entradas de esa lista.
+
+La opción Add shared_path to moved Python files when missing está activada de forma predeterminada. Al mover un archivo Python, puede insertar la configuración de importación shared_path si falta ese código. Desactive la opción si no deben modificarse los archivos de código fuente Python. Los movimientos propuestos se registran y requieren confirmación. Para sobrescribir archivos existentes en el destino se solicita una confirmación independiente; mover no crea automáticamente un respaldo.
+
+[tab:de-deduplicate]
+# Eliminar duplicados
+Seleccione una carpeta en Directory y haga clic en Find Duplicates para comparar el contenido de los archivos. Los archivos del mismo tamaño se comprueban mediante sumas SHA256. Los archivos del mismo grupo de duplicados tienen sumas idénticas. La tabla muestra el grupo, el nombre, la ubicación, el tamaño y la suma de verificación de cada archivo.
+
+Recursive incluye subcarpetas. User files only excluye nombres o carpetas que comienzan por un punto. Minimum bytes y Maximum bytes limitan los tamaños de archivo que se analizan; dejar vacío el máximo significa que no hay límite superior. Starts with, Contains y Extensions restringen aún más la búsqueda.
+
+First Duplicates selecciona las copias adicionales y deja sin seleccionar el primer archivo de cada grupo. Last Duplicates selecciona las copias adicionales y deja sin seleccionar el último archivo de cada grupo. Select None quita la selección. Compruebe las rutas seleccionadas antes de utilizar Delete Selected.
+
+Delete Selected elimina permanentemente los archivos resaltados tras una confirmación que muestra sus rutas. La aplicación advierte si se seleccionan todas las copias de un grupo de duplicados, pero no impide la eliminación. Esta acción no se puede deshacer. Conserve un respaldo independiente de todo lo importante.
+
+[tab:log]
+# Registro
+Log registra las acciones, los movimientos propuestos, las confirmaciones, los errores y los resultados durante la sesión actual. Escriba texto en Search para resaltar las entradas coincidentes. Matching lines only oculta las entradas que no contienen ese texto. Clear Log borra las entradas visibles de la sesión. El registro de sesión no se guarda en un archivo y se borra al cerrar la aplicación.
+
+[tab:config]
+# Configuración
+Config muestra la ubicación de cpc_dir_sub_fit.json, que almacena la configuración de la aplicación. Seleccione o introduzca Last directory y haga clic en Load Directory para abrirla en Explorer. La aplicación guarda ajustes como la última ubicación, la pestaña activa, los filtros, la clasificación y la apariencia de la ventana.
+
+[tab:ui-choices]
+# Opciones de interfaz
+Seleccione el tema de la interfaz, el espaciado o la densidad y las dimensiones de la ventana. Según el módulo compartido UI Choices disponible, también pueden aparecer los controles Use Current Size y Apply + Save. Estos ajustes afectan a la apariencia de la aplicación, no al contenido de los archivos seleccionados.
+
+[tab:gateway]
+# Acceso a aplicaciones
+Utilice el lanzador compartido Gateway, cuando esté disponible, para acceder a aplicaciones, archivos, carpetas o enlaces registrados. Gateway funciona por separado de las búsquedas de Explorer, los movimientos de archivos y la eliminación de duplicados.
+</p></div><div class="langtext" data-lang="fr" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — rôle de cette application
+Directory Subcontents Fitter examine des dossiers, recherche des fichiers à l’aide de filtres sur les noms et les extensions, déplace des fichiers vers des sous-dossiers et repère les doublons. L’application propose un explorateur, un déplacement par extension, une zone de déplacement des fichiers sélectionnés et une vérification des doublons par empreinte. Rechercher des fichiers ne les déplace ni ne les supprime.
+
+Commencez par Explorer pour examiner un dossier. Utilisez Move by Extension pour ranger les fichiers dans des dossiers portant le nom de leur extension, ou Move to Sub Directory pour vérifier une sélection et ses destinations avant tout déplacement. Utilisez De-DeDuplicate pour repérer les fichiers identiques avant de choisir lesquels supprimer.
+
+Sauvegardez vos données importantes avant de déplacer, renommer ou supprimer des fichiers. Un déplacement change l’emplacement du fichier. La suppression des doublons est définitive. Faites un clic droit sur un dossier et choisissez Add to archive ou ZIP, ou copiez le dossier ailleurs avant d’effectuer des modifications importantes. Les analyses de grands dossiers et les comparaisons d’empreintes peuvent demander de la patience.
+
+[tab:explorer]
+# Explorateur
+Indiquez un dossier dans Directory ou choisissez Browse, puis cliquez sur Find. Le tableau affiche les noms, dates de modification, extensions et tailles des fichiers correspondants. Utilisez Select All pour tout sélectionner ou Select None pour annuler la sélection. Double-cliquez sur un fichier pour l’ouvrir avec son application associée ; les fichiers Markdown peuvent s’ouvrir avec la visionneuse Markdown complémentaire, si elle est disponible.
+
+Starts with recherche le début d’un nom de fichier. Contains recherche du texte n’importe où dans le nom. Extensions limite les résultats aux types indiqués, comme py, txt ou jpg. Séparez plusieurs extensions par des virgules, des points-virgules ou des espaces. La recherche ignore la casse. Recursive inclut les fichiers des sous-dossiers ; sans cette option, seuls les fichiers directement présents dans le dossier choisi sont affichés. Cliquez sur l’en-tête d’une colonne pour modifier le tri.
+
+[tab:move-by-extension]
+# Déplacer par extension
+Choisissez le dossier Downloads ou un autre dossier source avec Browse. Renseignez éventuellement Starts with, Contains et Extensions, activez Recursive pour inclure les sous-dossiers, puis cliquez sur Find pour examiner les résultats. Select All et Select None règlent la sélection actuelle.
+
+Move Selected déplace uniquement les lignes sélectionnées. Move All déplace toutes les lignes affichées. Chaque fichier est placé dans un sous-dossier nommé d’après son extension, dans son dossier parent initial : un PDF va ainsi dans pdf. Un fichier sans extension va dans no_extension. Le programme présente les déplacements proposés et demande confirmation. Une confirmation distincte est demandée avant d’écraser un fichier déjà présent à destination.
+
+[tab:move-to-sub-directory]
+# Déplacer vers un sous-dossier
+Choisissez un dossier Source avec Browse. Utilisez Starts with, Contains, Extensions et Recursive pour limiter la recherche, puis cliquez sur Find. Les fichiers correspondants apparaissent dans le tableau supérieur. Add Selected ajoute les éléments sélectionnés au tableau inférieur ; Add All les ajoute tous. Ajouter un fichier ne le déplace pas.
+
+Le champ New subdirectory définit le dossier de destination dans Source. Après l’ajout des fichiers, sa valeur initiale provient du nom sans extension du premier fichier Python de la liste inférieure. S’il n’y a pas de fichier Python, le texte de Starts with est utilisé, puis celui de Contains ; sinon le champ reste vide. Vous pouvez modifier ce nom. Le tableau inférieur affiche chaque destination proposée.
+
+Remove Selected retire les fichiers sélectionnés de la liste inférieure sans les modifier sur le disque. Clear List vide cette liste. Rename Selected modifie le nom du fichier à destination pour un élément sélectionné ; le fichier d’origine n’est pas renommé immédiatement. Move Selected déplace les éléments sélectionnés de la liste inférieure. Move All déplace tous les éléments de cette liste.
+
+L’option Add shared_path to moved Python files when missing est activée par défaut. Lors d’un déplacement, elle peut insérer dans un fichier Python la configuration d’import de shared_path si ce code manque. Désactivez-la si les sources Python ne doivent pas être modifiées. Les déplacements prévus sont consignés et nécessitent confirmation. L’écrasement de fichiers existants demande une confirmation séparée ; un déplacement ne crée pas automatiquement de sauvegarde.
+
+[tab:de-deduplicate]
+# Détection des doublons
+Choisissez un dossier dans Directory et cliquez sur Find Duplicates pour comparer le contenu des fichiers. Les fichiers de même taille sont vérifiés au moyen d’empreintes SHA256. Les fichiers d’un même groupe de doublons ont la même empreinte. Le tableau indique le groupe, le nom, l’emplacement, la taille et l’empreinte de chaque fichier.
+
+Recursive inclut les sous-dossiers. User files only exclut les noms de fichiers ou de dossiers commençant par un point. Minimum bytes et Maximum bytes limitent les tailles examinées ; un maximum vide signifie qu’il n’y a pas de limite supérieure. Starts with, Contains et Extensions affinent la recherche.
+
+First Duplicates sélectionne les copies supplémentaires en laissant le premier fichier de chaque groupe non sélectionné. Last Duplicates sélectionne les copies supplémentaires en laissant le dernier fichier non sélectionné. Select None annule toute sélection. Vérifiez les chemins sélectionnés avant d’utiliser Delete Selected.
+
+Delete Selected supprime définitivement les fichiers sélectionnés après une confirmation indiquant leurs chemins. L’application avertit si toutes les copies d’un groupe sont sélectionnées, mais elle n’empêche pas leur suppression. Cette opération est irréversible. Gardez une sauvegarde distincte de toute donnée importante.
+
+[tab:log]
+# Journal
+Log consigne les actions, les déplacements proposés, les confirmations, les erreurs et les résultats de la session. Saisissez du texte dans Search pour surligner les entrées correspondantes. Matching lines only masque les entrées sans ce texte. Clear Log efface les entrées visibles de la session. Le journal de session n’est pas enregistré dans un fichier et disparaît à la fermeture de l’application.
+
+[tab:config]
+# Configuration
+Config affiche l’emplacement de cpc_dir_sub_fit.json, qui conserve les paramètres de l’application. Choisissez ou saisissez Last directory, puis cliquez sur Load Directory pour l’ouvrir dans Explorer. L’application mémorise notamment le dernier emplacement, l’onglet sélectionné, les filtres, le tri et l’apparence de la fenêtre.
+
+[tab:ui-choices]
+# Choix de l’interface
+Choisissez le thème de l’interface, l’espacement ou la densité, ainsi que les dimensions de la fenêtre. Selon le module partagé UI Choices disponible, les commandes Use Current Size et Apply + Save peuvent aussi être proposées. Ces paramètres modifient l’apparence de l’application, pas le contenu des fichiers sélectionnés.
+
+[tab:gateway]
+# Passerelle
+Utilisez le lanceur partagé Gateway, s’il est disponible, pour accéder aux applications, fichiers, dossiers ou liens enregistrés. Gateway fonctionne indépendamment des recherches Explorer, des déplacements de fichiers et de la suppression des doublons.
+</p></div><div class="langtext" data-lang="id" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — fungsi aplikasi ini
+Directory Subcontents Fitter memeriksa folder, mencari berkas dengan filter nama dan ekstensi, memindahkan berkas ke subdirektori, serta menemukan berkas duplikat. Aplikasi menyediakan Explorer, pemindahan berdasarkan ekstensi, area pemindahan berkas terpilih, dan pemeriksaan duplikat menggunakan checksum. Pencarian saja tidak memindahkan atau menghapus berkas.
+
+Mulailah dari Explorer untuk memeriksa folder. Gunakan Move by Extension untuk mengatur berkas dalam folder yang dinamai sesuai ekstensinya, atau Move to Sub Directory untuk memeriksa pilihan berkas beserta tujuannya sebelum dipindahkan. Gunakan De-DeDuplicate untuk mengenali berkas yang sama sebelum menentukan mana yang akan dihapus.
+
+Cadangkan data penting sebelum memindahkan, mengganti nama, atau menghapus berkas. Pemindahan mengubah lokasi berkas. Penghapusan duplikat bersifat permanen. Klik kanan folder dan gunakan Add to archive atau ZIP, atau salin folder ke tempat lain sebelum melakukan perubahan besar. Harap bersabar saat memindai direktori besar dan membandingkan checksum.
+
+[tab:explorer]
+# Penjelajah
+Masukkan folder di Directory atau pilih Browse, lalu klik Find. Tabel menampilkan nama berkas yang cocok, tanggal perubahan, ekstensi, dan ukurannya. Gunakan Select All untuk memilih semua atau Select None untuk membatalkan pilihan. Klik dua kali berkas untuk membukanya melalui aplikasi terkait; berkas Markdown dapat dibuka dengan penampil Markdown pendamping jika tersedia.
+
+Starts with mencocokkan bagian awal nama berkas. Contains mencari teks di bagian mana pun pada nama. Extensions membatasi hasil pada jenis seperti py, txt, atau jpg. Pisahkan beberapa ekstensi dengan koma, titik koma, atau spasi. Pencocokan tidak membedakan huruf besar dan kecil. Recursive menyertakan berkas dalam subfolder; jika dimatikan, hanya berkas yang langsung berada dalam folder terpilih yang ditampilkan. Klik judul kolom untuk mengubah urutan pengurutan.
+
+[tab:move-by-extension]
+# Pindah berdasarkan ekstensi
+Pilih folder Downloads atau folder sumber lain menggunakan Browse. Isi filter Starts with, Contains, dan Extensions jika diperlukan, aktifkan Recursive untuk menyertakan subfolder, lalu klik Find untuk meninjau hasil. Select All dan Select None mengatur pilihan saat ini.
+
+Move Selected hanya memindahkan entri yang disorot. Move All memindahkan semua entri dalam daftar. Setiap berkas masuk ke subfolder bernama ekstensinya di dalam folder induk asalnya: misalnya, berkas PDF masuk ke pdf. Berkas tanpa ekstensi masuk ke no_extension. Program menampilkan rencana pemindahan dan meminta konfirmasi. Konfirmasi terpisah diminta sebelum menimpa berkas yang sudah ada di tujuan.
+
+[tab:move-to-sub-directory]
+# Pindah ke subdirektori
+Pilih folder Source dengan Browse. Gunakan Starts with, Contains, Extensions, dan Recursive untuk membatasi pencarian, lalu klik Find. Berkas yang cocok muncul pada tabel atas. Add Selected menambahkan hasil terpilih ke tabel bawah; Add All menambahkan semuanya. Menambahkan berkas tidak berarti memindahkannya.
+
+Kolom New subdirectory menentukan folder tujuan di dalam Source. Setelah berkas ditambahkan, nilai awalnya berasal dari nama tanpa ekstensi berkas Python pertama dalam daftar bawah. Jika tidak ada berkas Python, gunakan teks Starts with terlebih dahulu, lalu Contains; jika keduanya kosong, biarkan kosong. Nama dapat diedit. Tabel bawah menunjukkan setiap tujuan yang direncanakan.
+
+Remove Selected mengeluarkan berkas yang disorot dari daftar bawah tanpa mengubah berkas di disk. Clear List mengosongkan daftar bawah. Rename Selected mengubah nama berkas tujuan untuk satu berkas terpilih, tetapi tidak langsung mengganti nama berkas asli. Move Selected memindahkan entri terpilih dari daftar bawah. Move All memindahkan seluruh entri dalam daftar tersebut.
+
+Opsi Add shared_path to moved Python files when missing aktif secara bawaan. Jika diaktifkan, pemindahan berkas Python juga dapat menyisipkan pengaturan impor shared_path ke dalam berkas tersebut jika kodenya belum ada. Matikan opsi ini jika kode sumber Python tidak boleh diubah. Rencana pemindahan dicatat dan perlu dikonfirmasi. Penimpaan berkas tujuan yang sudah ada memerlukan konfirmasi tersendiri; pemindahan tidak otomatis membuat cadangan.
+
+[tab:de-deduplicate]
+# Berkas duplikat
+Pilih folder di Directory dan klik Find Duplicates untuk membandingkan isi berkas. Berkas yang ukurannya sama diperiksa menggunakan checksum SHA256. Berkas dalam kelompok duplikat yang sama memiliki checksum sama. Tabel menunjukkan kelompok, nama berkas, lokasi, ukuran, dan checksum.
+
+Recursive menyertakan subfolder. User files only mengecualikan nama berkas atau folder yang diawali titik. Minimum bytes dan Maximum bytes membatasi ukuran berkas yang diperiksa; jika maksimum kosong, tidak ada batas atas. Starts with, Contains, dan Extensions semakin mempersempit pencarian.
+
+First Duplicates memilih salinan tambahan tetapi membiarkan berkas pertama dalam setiap kelompok tidak terpilih. Last Duplicates memilih salinan tambahan tetapi membiarkan berkas terakhir tidak terpilih. Select None membatalkan pilihan. Periksa jalur berkas terpilih sebelum menggunakan Delete Selected.
+
+Delete Selected menghapus berkas yang disorot secara permanen setelah konfirmasi yang memperlihatkan jalurnya. Aplikasi memperingatkan jika semua salinan dalam satu kelompok duplikat dipilih, tetapi tidak mencegah penghapusannya. Penghapusan tidak dapat dibatalkan. Simpan cadangan terpisah untuk semua data penting.
+
+[tab:log]
+# Log
+Log mencatat tindakan, rencana pemindahan, konfirmasi, kesalahan, dan hasil selama sesi berlangsung. Masukkan teks ke Search untuk menyorot entri yang cocok. Matching lines only menyembunyikan entri yang tidak berisi teks tersebut. Clear Log menghapus entri sesi yang terlihat. Log sesi tidak ditulis ke berkas log dan akan dikosongkan ketika aplikasi ditutup.
+
+[tab:config]
+# Konfigurasi
+Config menunjukkan lokasi cpc_dir_sub_fit.json yang menyimpan pengaturan aplikasi. Pilih atau masukkan Last directory, lalu klik Load Directory untuk membukanya di Explorer. Aplikasi menyimpan pengaturan seperti lokasi terakhir, tab terpilih, filter, pengurutan, dan tampilan jendela.
+
+[tab:ui-choices]
+# Pilihan antarmuka
+Pilih tema antarmuka, jarak atau kepadatan, dan ukuran jendela. Bergantung pada modul bersama UI Choices yang tersedia, kontrol Use Current Size dan Apply + Save mungkin juga ditampilkan. Pengaturan ini memengaruhi tampilan aplikasi, bukan isi berkas terpilih.
+
+[tab:gateway]
+# Gateway
+Gunakan peluncur bersama Gateway, jika tersedia, untuk mengakses aplikasi, berkas, folder, atau tautan terdaftar. Gateway bekerja secara terpisah dari pencarian Explorer, pemindahan berkas, dan penghapusan duplikat.
+</p></div><div class="langtext" data-lang="it" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — funzione dell’applicazione
+Directory Subcontents Fitter esamina le cartelle, trova i file tramite filtri sul nome e sull’estensione, sposta i file nelle sottocartelle e individua i duplicati. Offre un esploratore, lo spostamento per estensione, un’area per spostare i file selezionati e il controllo dei duplicati mediante checksum. Cercare i file non li sposta né li elimina.
+
+Iniziare da Explorer per esaminare una cartella. Usare Move by Extension per organizzare i file in cartelle con il nome della rispettiva estensione, oppure Move to Sub Directory per controllare una selezione e le destinazioni prima di spostarla. Usare De-DeDuplicate per individuare file uguali prima di decidere quali eliminare.
+
+Eseguire una copia di sicurezza dei dati importanti prima di spostare, rinominare o eliminare file. Lo spostamento modifica la posizione di un file. L’eliminazione dei duplicati è definitiva. Fare clic destro su una cartella e usare Add to archive o ZIP, oppure copiare la cartella altrove prima di eseguire modifiche estese. Le scansioni di cartelle grandi e i confronti dei checksum possono richiedere tempo.
+
+[tab:explorer]
+# Esploratore
+Inserire una cartella in Directory o scegliere Browse, quindi fare clic su Find. La tabella mostra i nomi dei file corrispondenti, le date di modifica, le estensioni e le dimensioni. Usare Select All per selezionare tutti i file o Select None per annullare la selezione. Fare doppio clic su un file per aprirlo con l’applicazione associata; i file Markdown possono aprirsi nel visualizzatore Markdown complementare, se disponibile.
+
+Starts with cerca una corrispondenza all’inizio del nome del file. Contains cerca testo in qualsiasi posizione del nome. Extensions limita i risultati ai tipi specificati, come py, txt o jpg. Separare più estensioni con virgole, punti e virgola o spazi. La ricerca non distingue maiuscole e minuscole. Recursive include i file nelle sottocartelle; se disattivato, vengono elencati solo i file direttamente nella cartella scelta. Fare clic sull’intestazione di una colonna per cambiare ordinamento.
+
+[tab:move-by-extension]
+# Spostamento per estensione
+Scegliere la cartella Downloads o un’altra cartella di origine con Browse. Inserire facoltativamente Starts with, Contains ed Extensions, attivare Recursive per includere le sottocartelle e fare clic su Find per esaminare i risultati. Select All e Select None gestiscono la selezione corrente.
+
+Move Selected sposta solo le voci evidenziate. Move All sposta tutte le voci elencate. Ogni file viene collocato in una sottocartella denominata in base alla sua estensione, nella cartella padre originale: per esempio, un PDF va in pdf. Un file senza estensione va in no_extension. Il programma elenca gli spostamenti proposti e chiede conferma. Chiede una conferma separata prima di sovrascrivere un file già presente nella destinazione.
+
+[tab:move-to-sub-directory]
+# Spostamento in una sottocartella
+Scegliere una cartella Source con Browse. Usare Starts with, Contains, Extensions e Recursive per restringere la ricerca, quindi fare clic su Find. I file corrispondenti compaiono nella tabella superiore. Add Selected aggiunge i file evidenziati alla tabella inferiore; Add All li aggiunge tutti. Aggiungere un file non lo sposta.
+
+Il campo New subdirectory imposta la cartella di destinazione all’interno di Source. Dopo l’aggiunta dei file, il valore predefinito è il nome senza estensione del primo file Python nell’elenco inferiore. In assenza di file Python viene usato il testo di Starts with e poi quello di Contains; altrimenti il campo resta vuoto. Il nome è modificabile. La tabella inferiore mostra ogni destinazione proposta.
+
+Remove Selected rimuove i file evidenziati dall’elenco inferiore senza modificarli sul disco. Clear List svuota l’elenco. Rename Selected cambia il nome di destinazione di un file evidenziato, ma non rinomina subito l’originale. Move Selected sposta gli elementi evidenziati dell’elenco inferiore; Move All sposta tutti gli elementi dell’elenco.
+
+L’opzione Add shared_path to moved Python files when missing è attiva per impostazione predefinita. Durante lo spostamento di un file Python può inserire il codice di configurazione dell’importazione shared_path se mancante. Disattivarla se il codice sorgente Python non deve essere modificato. Gli spostamenti proposti vengono registrati e richiedono conferma. La sovrascrittura di file di destinazione esistenti richiede una conferma separata; lo spostamento non crea automaticamente una copia di sicurezza.
+
+[tab:de-deduplicate]
+# Duplicati
+Scegliere una cartella in Directory e fare clic su Find Duplicates per confrontare i contenuti dei file. I file di pari dimensioni vengono confrontati mediante checksum SHA256. I file dello stesso gruppo di duplicati hanno checksum uguali. La tabella mostra gruppo, nome del file, percorso, dimensione e checksum.
+
+Recursive include le sottocartelle. User files only esclude file o cartelle il cui nome inizia con un punto. Minimum bytes e Maximum bytes limitano le dimensioni dei file da esaminare; un massimo vuoto non impone un limite superiore. Starts with, Contains ed Extensions restringono ulteriormente la ricerca.
+
+First Duplicates seleziona le copie aggiuntive lasciando non selezionato il primo file elencato di ogni gruppo. Last Duplicates seleziona le copie aggiuntive lasciando non selezionato l’ultimo file. Select None annulla la selezione. Verificare i percorsi selezionati prima di usare Delete Selected.
+
+Delete Selected elimina definitivamente i file evidenziati dopo una conferma che ne mostra i percorsi. L’applicazione avverte se sono selezionate tutte le copie di un gruppo di duplicati, ma non blocca l’eliminazione. L’operazione è irreversibile. Conservare una copia di sicurezza separata dei dati importanti.
+
+[tab:log]
+# Registro
+Log registra le azioni, gli spostamenti proposti, le conferme, gli errori e i risultati della sessione corrente. Inserire testo in Search per evidenziare le voci corrispondenti. Matching lines only nasconde le voci senza quel testo. Clear Log elimina le voci visibili della sessione. Il registro non viene salvato in un file e viene cancellato alla chiusura dell’applicazione.
+
+[tab:config]
+# Configurazione
+Config mostra la posizione di cpc_dir_sub_fit.json, che conserva le impostazioni dell’applicazione. Scegliere o inserire Last directory, quindi fare clic su Load Directory per aprirla in Explorer. L’applicazione memorizza l’ultima posizione, la scheda selezionata, i filtri, l’ordinamento e l’aspetto della finestra.
+
+[tab:ui-choices]
+# Opzioni dell’interfaccia
+Scegliere il tema dell’interfaccia, la spaziatura o densità e le dimensioni della finestra. In base al modulo condiviso UI Choices disponibile, potrebbero essere presenti anche Use Current Size e Apply + Save. Queste impostazioni influiscono sull’aspetto dell’applicazione, non sul contenuto dei file selezionati.
+
+[tab:gateway]
+# Gateway
+Usare il programma di avvio condiviso Gateway, se disponibile, per accedere ad applicazioni, file, cartelle o collegamenti registrati. Gateway funziona separatamente dalle ricerche in Explorer, dagli spostamenti dei file e dall’eliminazione dei duplicati.
+</p></div><div class="langtext" data-lang="ja" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — このアプリケーションの機能
+Directory Subcontents Fitter はフォルダーを調べ、ファイル名や拡張子のフィルターでファイルを探し、ファイルをサブフォルダーへ移動して重複ファイルを検出します。Explorer、拡張子別の移動、選択ファイルの移動領域、チェックサムによる重複確認を備えています。検索しただけではファイルは移動も削除もされません。
+
+最初に Explorer でフォルダーを調べます。Move by Extension は拡張子名のフォルダーにファイルを整理します。Move to Sub Directory では、移動前に選択ファイルと移動先を確認できます。De-DeDuplicate で一致するファイルを見つけ、削除するファイルを決めてください。
+
+ファイルの移動、名前変更、削除を行う前に、重要なデータをバックアップしてください。移動するとファイルの保存場所が変わります。重複ファイルの削除は永久的です。大きな変更の前にフォルダーを右クリックして Add to archive または ZIP を使うか、別の場所にフォルダーをコピーしてください。大規模なディレクトリの検索やチェックサムの比較には時間がかかることがあります。
+
+[tab:explorer]
+# エクスプローラー
+Directory にフォルダーを入力するか Browse で選び、Find を押します。表には一致したファイル名、更新日時、拡張子、サイズが表示されます。Select All ですべてを選択し、Select None で選択を解除します。ファイルをダブルクリックすると関連付けられたアプリケーションで開きます。対応する Markdown ビューアーがあれば、Markdown ファイルはそのビューアーで開くこともあります。
+
+Starts with はファイル名の先頭に一致するものを探し、Contains は名前のどの位置でも文字列を探します。Extensions は結果を py、txt、jpg などの指定した種類に限定します。複数の拡張子はコンマ、セミコロン、空白で区切ります。大文字と小文字は区別しません。Recursive を有効にするとサブフォルダー内のファイルも含まれ、無効にすると選択フォルダー直下のファイルだけが表示されます。列見出しを押すと並び順を変更できます。
+
+[tab:move-by-extension]
+# 拡張子別に移動
+Browse で Downloads フォルダーまたは別の元フォルダーを選びます。必要なら Starts with、Contains、Extensions を入力し、サブフォルダーも含める場合は Recursive を有効にして Find を押し、一致ファイルを確認します。Select All と Select None で現在の選択を操作できます。
+
+Move Selected は選択した項目だけを、Move All は表示されたすべての項目を移動します。各ファイルは元の親フォルダー内で、拡張子を名前にしたサブフォルダーへ移されます。例えば PDF ファイルは pdf に入ります。拡張子のないファイルは no_extension に入ります。プログラムは予定された移動を一覧表示し、確認を求めます。移動先の既存ファイルを上書きする前には、別途確認が必要です。
+
+[tab:move-to-sub-directory]
+# サブフォルダーへ移動
+Browse で Source フォルダーを選びます。Starts with、Contains、Extensions、Recursive で検索を絞り、Find を押します。一致したファイルは上の表に表示されます。Add Selected は選択した結果を下の表に追加し、Add All はすべて追加します。追加だけではファイルは移動しません。
+
+New subdirectory 欄は Source 内の移動先フォルダーを指定します。ファイルを追加すると、下の一覧の最初の Python ファイルの拡張子を除いた名前が初期値になります。Python ファイルがなければ Starts with の文字列、次に Contains の文字列が使われ、それもなければ空欄のままです。名前は編集できます。下の表には各ファイルの移動予定先が表示されます。
+
+Remove Selected は選択したファイルを下の一覧から外すだけで、ディスク上のファイルは変更しません。Clear List は下の一覧を空にします。Rename Selected は選択したファイルの移動先での名前を変更し、元ファイルの名前を直ちに変えるものではありません。Move Selected は下の一覧で選択した項目を移動し、Move All は一覧の全項目を移動します。
+
+Add shared_path to moved Python files when missing は初期状態で有効です。Python ファイルを移動する際にコードがなければ shared_path のインポート設定をそのファイルへ挿入する場合があります。Python のソースを変更したくない場合は無効にしてください。移動予定はログに記録され、確認が必要です。既存の移動先ファイルを上書きするには別途確認が必要で、移動によってバックアップが自動作成されることはありません。
+
+[tab:de-deduplicate]
+# 重複ファイルの処理
+Directory でフォルダーを選び、Find Duplicates を押してファイルの内容を比較します。同じサイズのファイルは SHA256 チェックサムで調べます。同じ重複グループのファイルはチェックサムも同じです。表にはグループ、ファイル名、保存場所、サイズ、チェックサムが表示されます。
+
+Recursive はサブフォルダーを含めます。User files only はドットで始まるファイル名やフォルダー名を除外します。Minimum bytes と Maximum bytes は調べるファイルのサイズを制限し、最大値を空にすると上限がなくなります。Starts with、Contains、Extensions でも検索を絞れます。
+
+First Duplicates は各グループの一覧で最初のファイルを未選択のまま、余分なコピーを選択します。Last Duplicates は最後のファイルを未選択のまま、余分なコピーを選択します。Select None は選択を解除します。Delete Selected を使う前に、選択されたパスを確認してください。
+
+Delete Selected はファイルのパスを示す確認の後、選択ファイルを完全に削除します。重複グループのすべてのコピーが選ばれている場合は警告しますが、削除は停止しません。削除を取り消すことはできません。重要なデータは別にバックアップを保管してください。
+
+[tab:log]
+# ログ
+Log は現在のセッションでの操作、移動予定、確認、エラー、結果を記録します。Search に文字列を入力すると一致する項目が強調表示されます。Matching lines only はその文字列のない項目を非表示にします。Clear Log は表示中のセッション記録を消去します。セッションログはファイルに保存されず、アプリケーション終了時に消去されます。
+
+[tab:config]
+# 設定
+Config は設定を保存する cpc_dir_sub_fit.json の場所を示します。Last directory を選ぶか入力し、Load Directory を押すと Explorer で開きます。アプリケーションは最後の場所、選択タブ、フィルター、並び順、ウィンドウの外観などを保存します。
+
+[tab:ui-choices]
+# 画面表示の選択
+画面のテーマ、間隔または表示密度、ウィンドウの大きさを選びます。共有 UI Choices モジュールの種類によっては Use Current Size と Apply + Save も表示されます。これらはアプリケーションの外観だけに作用し、選択したファイルの内容は変更しません。
+
+[tab:gateway]
+# Gateway
+共有 Gateway 起動ツールが利用可能な場合は、登録済みのアプリケーション、ファイル、フォルダー、リンクにアクセスできます。Gateway は Explorer の検索、ファイル移動、重複ファイル削除とは独立して動作します。
+</p></div><div class="langtext" data-lang="ko" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — 이 프로그램의 기능
+Directory Subcontents Fitter는 폴더를 검사하고 파일 이름 및 확장자 필터로 파일을 찾으며, 파일을 하위 폴더로 이동하고 중복 파일을 탐지합니다. Explorer, 확장자별 이동, 선택한 파일 이동 영역, 체크섬 기반 중복 검사 기능을 제공합니다. 검색만으로는 파일을 이동하거나 삭제하지 않습니다.
+
+먼저 Explorer에서 폴더를 확인하세요. Move by Extension은 확장자 이름으로 만든 폴더에 파일을 정리합니다. Move to Sub Directory는 이동하기 전에 특정 선택 항목과 대상 위치를 확인할 때 사용합니다. De-DeDuplicate로 동일한 파일을 찾은 후 삭제할 파일을 결정하세요.
+
+파일을 이동하거나 이름을 바꾸거나 삭제하기 전에 중요한 데이터를 백업하세요. 파일을 이동하면 저장 위치가 바뀝니다. 중복 파일 삭제는 영구적입니다. 대규모 변경 전에 폴더를 마우스 오른쪽 버튼으로 클릭하여 Add to archive 또는 ZIP을 사용하거나 다른 위치에 폴더를 복사하세요. 큰 디렉터리를 검사하거나 체크섬을 비교할 때는 시간이 걸릴 수 있습니다.
+
+[tab:explorer]
+# 파일 탐색기
+Directory에 폴더를 입력하거나 Browse로 선택한 다음 Find를 클릭하세요. 표에는 일치하는 파일 이름, 수정 날짜, 확장자 및 크기가 표시됩니다. Select All로 전체 선택하거나 Select None으로 선택을 해제하세요. 파일을 두 번 클릭하면 연결된 프로그램으로 열립니다. 보조 Markdown 뷰어가 있으면 Markdown 파일이 해당 뷰어로 열릴 수도 있습니다.
+
+Starts with는 파일 이름의 시작 부분을 비교하고 Contains는 이름 어디에 있는 문자든 검색합니다. Extensions는 py, txt, jpg 등 지정한 파일 형식으로 결과를 제한합니다. 확장자 여러 개는 쉼표, 세미콜론 또는 공백으로 구분합니다. 대소문자는 구별하지 않습니다. Recursive를 켜면 하위 폴더의 파일도 포함하고, 끄면 선택한 폴더 바로 아래의 파일만 표시합니다. 열 제목을 클릭하면 정렬 순서를 바꿀 수 있습니다.
+
+[tab:move-by-extension]
+# 확장자별 이동
+Browse에서 Downloads 폴더 또는 다른 원본 폴더를 선택하세요. 필요하면 Starts with, Contains, Extensions 필터를 입력하고, 하위 폴더를 포함하려면 Recursive를 선택한 다음 Find로 일치하는 파일을 확인하세요. Select All과 Select None으로 현재 선택을 조정합니다.
+
+Move Selected는 강조 표시된 항목만 이동하고 Move All은 목록의 모든 항목을 이동합니다. 각 파일은 원래 상위 폴더 안에서 확장자 이름을 가진 하위 폴더로 이동합니다. 예를 들어 PDF 파일은 pdf 폴더에 들어갑니다. 확장자가 없는 파일은 no_extension에 들어갑니다. 프로그램은 예정된 이동을 보여 주고 확인을 요청합니다. 대상에 이미 있는 파일을 덮어쓸 때는 별도로 확인합니다.
+
+[tab:move-to-sub-directory]
+# 하위 폴더로 이동
+Browse에서 Source 폴더를 선택하세요. Starts with, Contains, Extensions, Recursive로 검색 범위를 좁힌 후 Find를 클릭하세요. 일치하는 파일은 위쪽 표에 표시됩니다. Add Selected는 선택한 파일을 아래쪽 표에 추가하고 Add All은 전부 추가합니다. 추가만으로는 파일이 이동하지 않습니다.
+
+New subdirectory 필드는 Source 안의 대상 폴더를 지정합니다. 파일을 추가하면 아래쪽 목록에서 첫 번째 Python 파일의 확장자를 뺀 이름을 기본값으로 사용합니다. Python 파일이 없으면 Starts with의 텍스트를 먼저 사용하고, 없으면 Contains의 텍스트를 사용합니다. 둘 다 없으면 비워 둡니다. 이름은 편집할 수 있고 아래쪽 표에 각 파일의 예정 대상이 표시됩니다.
+
+Remove Selected는 선택한 파일을 아래쪽 목록에서만 제거하며 디스크의 파일은 변경하지 않습니다. Clear List는 아래쪽 목록을 비웁니다. Rename Selected는 선택한 파일 한 개의 대상 파일 이름을 바꾸지만 원본 이름을 즉시 바꾸지는 않습니다. Move Selected는 아래쪽 목록의 선택한 항목을, Move All은 그 목록의 모든 항목을 이동합니다.
+
+Add shared_path to moved Python files when missing 옵션은 기본적으로 켜져 있습니다. 이 옵션을 켜면 Python 파일을 이동할 때 shared_path 가져오기 설정 코드가 없는 경우 해당 파일에 삽입할 수 있습니다. Python 소스 코드를 수정해서는 안 된다면 끄세요. 예정된 이동은 기록되며 확인이 필요합니다. 기존 대상 파일을 덮어쓰려면 별도의 확인이 필요하며, 이동 시 백업을 자동으로 생성하지 않습니다.
+
+[tab:de-deduplicate]
+# 중복 파일 처리
+Directory에서 폴더를 선택하고 Find Duplicates를 클릭하면 파일 내용을 비교합니다. 크기가 같은 파일은 SHA256 체크섬으로 검사합니다. 같은 중복 그룹에 속하는 파일의 체크섬은 동일합니다. 표에는 그룹, 파일 이름, 위치, 크기 및 체크섬이 표시됩니다.
+
+Recursive는 하위 폴더를 포함합니다. User files only는 이름이 점으로 시작하는 파일이나 폴더를 제외합니다. Minimum bytes와 Maximum bytes는 검사할 파일 크기를 제한하며 최대값을 비우면 상한이 없습니다. Starts with, Contains, Extensions로 검색을 추가로 제한할 수 있습니다.
+
+First Duplicates는 그룹마다 첫 번째 파일은 선택하지 않고 나머지 복사본을 선택합니다. Last Duplicates는 마지막 파일을 선택하지 않고 나머지 복사본을 선택합니다. Select None은 선택을 모두 해제합니다. Delete Selected를 사용하기 전에 선택한 파일 경로를 확인하세요.
+
+Delete Selected는 경로를 보여 주는 확인 절차 후 강조된 파일을 영구 삭제합니다. 중복 그룹의 모든 복사본이 선택되면 경고하지만 삭제 자체를 막지는 않습니다. 삭제는 되돌릴 수 없습니다. 중요한 자료는 별도로 백업해 두세요.
+
+[tab:log]
+# 로그
+Log는 현재 세션 동안의 작업, 예정된 파일 이동, 확인, 오류 및 결과를 기록합니다. Search에 글자를 입력하면 일치하는 항목이 강조 표시됩니다. Matching lines only는 그 글자가 없는 항목을 숨깁니다. Clear Log는 보이는 세션 기록을 지웁니다. 세션 로그는 로그 파일로 저장되지 않으며 프로그램이 종료되면 사라집니다.
+
+[tab:config]
+# 설정
+Config는 프로그램 설정을 저장하는 cpc_dir_sub_fit.json의 위치를 보여 줍니다. Last directory를 선택하거나 입력한 다음 Load Directory를 클릭하면 Explorer에서 엽니다. 마지막 위치, 선택한 탭, 필터, 정렬, 창 모양 등의 설정이 저장됩니다.
+
+[tab:ui-choices]
+# 화면 설정
+인터페이스 테마, 간격 또는 밀도와 창 크기를 선택하세요. 사용할 수 있는 공유 UI Choices 모듈에 따라 Use Current Size 및 Apply + Save 항목도 나타날 수 있습니다. 이러한 설정은 프로그램 외관에만 영향을 주고 선택한 파일 내용은 바꾸지 않습니다.
+
+[tab:gateway]
+# Gateway
+공유 Gateway 실행기가 있는 경우 등록된 프로그램, 파일, 폴더 또는 링크에 접근할 수 있습니다. Gateway는 Explorer 검색, 파일 이동 및 중복 파일 삭제와 별도로 작동합니다.
+</p></div><div class="langtext" data-lang="ms" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — fungsi aplikasi ini
+Directory Subcontents Fitter memeriksa folder, mencari fail menggunakan penapis nama dan sambungan, memindahkan fail ke subdirektori dan mencari fail pendua. Aplikasi ini menyediakan Explorer, pemindahan mengikut sambungan, ruang pemindahan fail terpilih dan pemeriksaan pendua menggunakan checksum. Mencari fail sahaja tidak memindahkan atau memadamkannya.
+
+Mulakan di Explorer untuk memeriksa folder. Gunakan Move by Extension untuk menyusun fail ke dalam folder yang dinamakan mengikut sambungannya, atau Move to Sub Directory untuk menyemak fail terpilih dan destinasi sebelum pemindahan. Gunakan De-DeDuplicate untuk mengenal pasti fail yang sama sebelum menentukan fail yang hendak dipadam.
+
+Sandarkan data penting sebelum memindahkan, menamakan semula atau memadam fail. Pemindahan mengubah lokasi fail. Pemadaman pendua adalah kekal. Klik kanan pada folder dan gunakan Add to archive atau ZIP, atau salin folder ke lokasi lain sebelum membuat perubahan besar. Harap bersabar semasa imbasan direktori besar dan perbandingan checksum.
+
+[tab:explorer]
+# Penjelajah
+Masukkan folder dalam Directory atau pilih Browse, kemudian klik Find. Jadual memaparkan nama fail yang sepadan, tarikh pengubahsuaian, sambungan dan saiz. Gunakan Select All untuk memilih semua fail atau Select None untuk mengosongkan pilihan. Klik dua kali fail untuk membukanya dengan aplikasi yang berkaitan; fail Markdown mungkin dibuka dengan pemapar Markdown tambahan jika tersedia.
+
+Starts with memadankan bahagian awal nama fail. Contains mencari teks di mana-mana bahagian nama fail. Extensions mengehadkan hasil kepada jenis seperti py, txt atau jpg. Pisahkan beberapa sambungan dengan koma, koma bernoktah atau ruang. Padanan tidak membezakan huruf besar dan kecil. Recursive memasukkan fail dalam subfolder; apabila dimatikan, hanya fail terus dalam folder terpilih disenaraikan. Klik tajuk lajur untuk mengubah susunan isihan.
+
+[tab:move-by-extension]
+# Pindah mengikut sambungan
+Pilih folder Downloads atau folder sumber lain melalui Browse. Isi penapis pilihan Starts with, Contains dan Extensions, aktifkan Recursive jika subfolder perlu dimasukkan, kemudian klik Find untuk menyemak hasil. Select All dan Select None mengawal pilihan semasa.
+
+Move Selected hanya memindahkan entri yang diserlahkan. Move All memindahkan semua entri yang disenaraikan. Setiap fail dipindahkan ke subfolder bernama sambungannya dalam folder induk asal: contohnya, fail PDF masuk ke dalam pdf. Fail tanpa sambungan masuk ke dalam no_extension. Program menyenaraikan pemindahan yang dicadangkan dan meminta pengesahan. Pengesahan berasingan diperlukan sebelum menulis ganti fail yang sudah wujud di destinasi.
+
+[tab:move-to-sub-directory]
+# Pindah ke subdirektori
+Pilih folder Source melalui Browse. Gunakan Starts with, Contains, Extensions dan Recursive untuk mengecilkan carian, kemudian klik Find. Fail sepadan muncul dalam jadual atas. Add Selected menambah hasil yang dipilih ke jadual bawah; Add All menambah semua hasil. Menambah fail tidak memindahkannya.
+
+Medan New subdirectory menentukan folder destinasi dalam Source. Selepas menambah fail, nilai lalainya diambil daripada nama tanpa sambungan bagi fail Python pertama dalam senarai bawah. Jika tiada fail Python, teks Starts with digunakan dahulu, diikuti Contains; jika tiada kedua-duanya, medan dibiarkan kosong. Nama boleh diubah. Jadual bawah menunjukkan setiap destinasi yang dicadangkan.
+
+Remove Selected mengeluarkan fail yang diserlahkan daripada senarai bawah tanpa mengubah fail pada cakera. Clear List mengosongkan senarai bawah. Rename Selected mengubah nama fail di destinasi bagi satu fail terpilih; ia tidak terus menamakan semula fail asal. Move Selected memindahkan entri terpilih daripada senarai bawah. Move All memindahkan semua entri dalam senarai itu.
+
+Pilihan Add shared_path to moved Python files when missing diaktifkan secara lalai. Apabila aktif, pemindahan fail Python juga boleh memasukkan tetapan import shared_path ke dalam fail itu jika kod tersebut tiada. Matikan pilihan ini jika kod sumber Python tidak boleh diubah. Pemindahan yang dicadangkan direkodkan dan memerlukan pengesahan. Fail destinasi yang sedia ada memerlukan pengesahan tulis ganti secara berasingan; pemindahan tidak membuat sandaran secara automatik.
+
+[tab:de-deduplicate]
+# Fail pendua
+Pilih folder dalam Directory dan klik Find Duplicates untuk membandingkan kandungan fail. Fail dengan saiz sama disemak menggunakan checksum SHA256. Fail dalam kumpulan pendua yang sama mempunyai checksum yang sepadan. Jadual menunjukkan kumpulan, nama fail, lokasi, saiz dan checksum.
+
+Recursive memasukkan subfolder. User files only mengecualikan nama fail atau folder yang bermula dengan titik. Minimum bytes dan Maximum bytes mengehadkan saiz fail untuk diperiksa; maksimum kosong bermaksud tiada had atas. Starts with, Contains dan Extensions mengehadkan carian dengan lebih lanjut.
+
+First Duplicates memilih salinan tambahan sambil membiarkan fail pertama yang disenaraikan dalam setiap kumpulan tidak dipilih. Last Duplicates memilih salinan tambahan sambil membiarkan fail terakhir tidak dipilih. Select None mengosongkan pilihan. Semak laluan yang dipilih sebelum menggunakan Delete Selected.
+
+Delete Selected memadamkan fail yang diserlahkan secara kekal selepas pengesahan yang menunjukkan laluannya. Aplikasi memberi amaran jika semua salinan dalam kumpulan pendua dipilih tetapi tidak menghalang pemadaman. Pemadaman tidak boleh dibuat asal. Simpan sandaran berasingan bagi semua data penting.
+
+[tab:log]
+# Log
+Log merekodkan tindakan, pemindahan fail yang dicadangkan, pengesahan, ralat dan hasil sepanjang sesi semasa. Masukkan teks dalam Search untuk menyerlahkan entri yang sepadan. Matching lines only menyembunyikan entri tanpa teks tersebut. Clear Log membuang entri sesi yang dipaparkan. Log sesi tidak ditulis ke fail log dan dikosongkan apabila aplikasi ditutup.
+
+[tab:config]
+# Konfigurasi
+Config menunjukkan lokasi cpc_dir_sub_fit.json yang menyimpan tetapan aplikasi. Pilih atau masukkan Last directory, kemudian klik Load Directory untuk membukanya dalam Explorer. Aplikasi menyimpan tetapan seperti lokasi terakhir, tab dipilih, penapis, susunan dan rupa tetingkap.
+
+[tab:ui-choices]
+# Pilihan antara muka
+Pilih tema antara muka, jarak atau kepadatan serta dimensi tetingkap. Bergantung pada modul kongsi UI Choices yang tersedia, kawalan Use Current Size dan Apply + Save juga mungkin disediakan. Tetapan ini mempengaruhi rupa aplikasi, bukan kandungan fail terpilih.
+
+[tab:gateway]
+# Gateway
+Gunakan pelancar kongsi Gateway jika tersedia untuk mengakses aplikasi, fail, folder atau pautan berdaftar. Gateway berfungsi berasingan daripada carian Explorer, pemindahan fail dan pemadaman pendua.
+</p></div><div class="langtext" data-lang="nl" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — wat deze toepassing doet
+Directory Subcontents Fitter onderzoekt mappen, zoekt bestanden met filters voor naam en extensie, verplaatst bestanden naar submappen en vindt dubbele bestanden. De toepassing biedt een Explorer, verplaatsen op extensie, een gedeelte voor geselecteerde bestanden en controle van duplicaten met controlesommen. Alleen zoeken verplaatst of verwijdert geen bestanden.
+
+Begin in Explorer om een map te bekijken. Gebruik Move by Extension om bestanden in mappen met hun extensienaam te ordenen, of Move to Sub Directory om een selectie en de bestemmingen te controleren voordat u verplaatst. Gebruik De-DeDuplicate om gelijke bestanden te vinden voordat u beslist welke worden verwijderd.
+
+Maak een back-up van belangrijke gegevens voordat u bestanden verplaatst, hernoemt of verwijdert. Verplaatsen verandert de locatie van een bestand. Het verwijderen van duplicaten is definitief. Klik met de rechtermuisknop op een map en kies Add to archive of ZIP, of kopieer de map naar een andere locatie voordat u grote wijzigingen uitvoert. Grote mapscans en controlesomvergelijkingen kunnen tijd kosten.
+
+[tab:explorer]
+# Verkenner
+Vul een map in bij Directory of kies Browse en klik daarna op Find. De tabel toont overeenkomende bestandsnamen, wijzigingsdatums, extensies en groottes. Gebruik Select All om bestanden te selecteren of Select None om de selectie op te heffen. Dubbelklik op een bestand om het met de gekoppelde toepassing te openen; Markdown-bestanden kunnen in de aanvullende Markdown-viewer worden geopend indien beschikbaar.
+
+Starts with zoekt aan het begin van een bestandsnaam. Contains zoekt tekst op een willekeurige plaats in de naam. Extensions beperkt resultaten tot opgegeven typen zoals py, txt of jpg. Scheid meerdere extensies met komma’s, puntkomma’s of spaties. Hoofdletters en kleine letters maken geen verschil. Recursive neemt bestanden in submappen mee; zonder Recursive worden alleen bestanden direct in de gekozen map getoond. Klik op een kolomkop om de sortering te wijzigen.
+
+[tab:move-by-extension]
+# Verplaatsen op extensie
+Kies met Browse de map Downloads of een andere bronmap. Voer eventueel Starts with, Contains en Extensions in, schakel Recursive in om submappen mee te nemen en klik op Find om de resultaten te controleren. Select All en Select None bepalen de huidige selectie.
+
+Move Selected verplaatst alleen gemarkeerde regels. Move All verplaatst alle weergegeven regels. Elk bestand gaat naar een submap met de naam van de extensie in de oorspronkelijke bovenliggende map: een PDF-bestand gaat bijvoorbeeld naar pdf. Een bestand zonder extensie gaat naar no_extension. Het programma toont de voorgestelde verplaatsingen en vraagt om bevestiging. Voor het overschrijven van een bestaand doelbestand wordt apart toestemming gevraagd.
+
+[tab:move-to-sub-directory]
+# Naar een submap verplaatsen
+Kies een Source-map met Browse. Beperk de zoekactie met Starts with, Contains, Extensions en Recursive en klik op Find. Overeenkomende bestanden verschijnen in de bovenste tabel. Add Selected voegt geselecteerde bestanden toe aan de onderste tabel; Add All voegt alles toe. Toevoegen verplaatst geen bestanden.
+
+Het veld New subdirectory bepaalt de doelmap binnen Source. Na het toevoegen van bestanden komt de standaardnaam van de eerste Python-bestandsnaam zonder extensie in de onderste lijst. Als er geen Python-bestand is, wordt de tekst van Starts with gebruikt en daarna die van Contains; anders blijft het veld leeg. De naam kan worden aangepast. De onderste tabel toont elke voorgestelde bestemming.
+
+Remove Selected haalt gemarkeerde bestanden uit de onderste lijst zonder ze op de schijf te wijzigen. Clear List leegt de lijst. Rename Selected wijzigt de bestandsnaam op de bestemming voor één gemarkeerd bestand en hernoemt niet meteen het origineel. Move Selected verplaatst de gemarkeerde items uit de onderste lijst. Move All verplaatst alle items uit die lijst.
+
+De optie Add shared_path to moved Python files when missing staat standaard aan. Bij het verplaatsen van een Python-bestand kan de toepassing ontbrekende shared_path-importinstellingen toevoegen aan de broncode. Schakel deze optie uit als Python-bronbestanden ongewijzigd moeten blijven. Voorgestelde verplaatsingen worden vastgelegd en vereisen bevestiging. Voor het overschrijven van bestaande doelbestanden is afzonderlijke bevestiging vereist; verplaatsen maakt niet automatisch een back-up.
+
+[tab:de-deduplicate]
+# Duplicaten
+Kies een map bij Directory en klik op Find Duplicates om bestandsinhoud te vergelijken. Bestanden met dezelfde grootte worden met SHA256-controlesommen gecontroleerd. Bestanden in dezelfde duplicatengroep hebben gelijke controlesommen. De tabel toont groep, bestandsnaam, locatie, grootte en controlesom.
+
+Recursive neemt submappen mee. User files only sluit bestands- en mapnamen uit die met een punt beginnen. Minimum bytes en Maximum bytes beperken de te onderzoeken bestandsgroottes; een leeg maximum betekent geen bovengrens. Starts with, Contains en Extensions beperken de zoekopdracht verder.
+
+First Duplicates selecteert extra kopieën en laat het eerste weergegeven bestand van elke groep ongemarkeerd. Last Duplicates selecteert extra kopieën en laat het laatste bestand ongemarkeerd. Select None heft de selectie op. Controleer de geselecteerde paden voordat u Delete Selected gebruikt.
+
+Delete Selected verwijdert de gemarkeerde bestanden definitief na bevestiging waarbij hun paden worden getoond. De toepassing waarschuwt wanneer alle kopieën uit een duplicatengroep zijn geselecteerd, maar voorkomt het verwijderen niet. Dit kan niet ongedaan worden gemaakt. Bewaar een afzonderlijke back-up van belangrijke gegevens.
+
+[tab:log]
+# Logboek
+Log registreert acties, voorgestelde verplaatsingen, bevestigingen, fouten en resultaten tijdens de huidige sessie. Typ tekst bij Search om overeenkomende regels te markeren. Matching lines only verbergt regels zonder die tekst. Clear Log verwijdert de zichtbare sessieregels. Het sessielogboek wordt niet in een bestand opgeslagen en wordt bij het afsluiten gewist.
+
+[tab:config]
+# Configuratie
+Config toont de locatie van cpc_dir_sub_fit.json, waarin de toepassingsinstellingen worden bewaard. Kies of typ Last directory en klik op Load Directory om de map in Explorer te openen. De toepassing onthoudt onder andere de laatste locatie, gekozen tab, filters, sortering en vensterweergave.
+
+[tab:ui-choices]
+# Interfacekeuzes
+Kies het interfacethema, de ruimte of dichtheid en de afmetingen van het venster. Afhankelijk van de beschikbare gedeelde module UI Choices kunnen ook Use Current Size en Apply + Save aanwezig zijn. Deze instellingen veranderen het uiterlijk van de toepassing, niet de inhoud van de geselecteerde bestanden.
+
+[tab:gateway]
+# Gateway
+Gebruik de gedeelde starter Gateway, indien beschikbaar, om geregistreerde toepassingen, bestanden, mappen of koppelingen te openen. Gateway werkt los van zoekacties in Explorer, het verplaatsen van bestanden en het verwijderen van duplicaten.
+</p></div><div class="langtext" data-lang="pt" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — o que esta aplicação faz
+Directory Subcontents Fitter analisa pastas, encontra ficheiros através de filtros de nome e extensão, move ficheiros para subpastas e identifica duplicados. Disponibiliza um explorador, movimentos por extensão, uma área para mover ficheiros selecionados e inspeção de duplicados por somas de verificação. A pesquisa, por si só, não move nem elimina ficheiros.
+
+Comece por Explorer para examinar uma pasta. Use Move by Extension para organizar ficheiros em pastas com o nome das respetivas extensões, ou Move to Sub Directory para verificar uma seleção e os destinos antes de mover. Use De-DeDuplicate para localizar ficheiros coincidentes antes de decidir quais eliminar.
+
+Faça uma cópia de segurança dos dados importantes antes de mover, mudar o nome ou eliminar ficheiros. Mover um ficheiro altera a sua localização. A eliminação de duplicados é permanente. Clique com o botão direito numa pasta e use Add to archive ou ZIP, ou copie a pasta para outro local antes de efetuar grandes alterações. Tenha paciência durante a análise de diretórios grandes e a comparação de somas de verificação.
+
+[tab:explorer]
+# Explorador
+Introduza uma pasta em Directory ou escolha Browse e clique em Find. A tabela apresenta nomes de ficheiros correspondentes, datas de modificação, extensões e tamanhos. Use Select All para selecionar ficheiros ou Select None para limpar a seleção. Faça duplo clique num ficheiro para o abrir na aplicação associada; ficheiros Markdown podem abrir no visualizador Markdown complementar, se estiver disponível.
+
+Starts with procura o início do nome do ficheiro. Contains procura texto em qualquer posição do nome. Extensions limita os resultados aos tipos indicados, como py, txt ou jpg. Separe várias extensões com vírgulas, pontos e vírgulas ou espaços. A pesquisa não distingue maiúsculas de minúsculas. Recursive inclui ficheiros de subpastas; se estiver desativado, só são apresentados ficheiros diretamente na pasta escolhida. Clique no cabeçalho de uma coluna para alterar a ordenação.
+
+[tab:move-by-extension]
+# Mover por extensão
+Escolha a pasta Downloads ou outra pasta de origem com Browse. Introduza opcionalmente os filtros Starts with, Contains e Extensions, ative Recursive para incluir subpastas e clique em Find para rever os resultados. Select All e Select None controlam a seleção atual.
+
+Move Selected move apenas as entradas realçadas. Move All move todas as entradas apresentadas. Cada ficheiro é colocado numa subpasta com o nome da sua extensão, dentro da pasta original: por exemplo, um PDF vai para pdf. Um ficheiro sem extensão vai para no_extension. O programa apresenta os movimentos propostos e pede confirmação. Pede uma confirmação separada antes de substituir qualquer ficheiro já existente no destino.
+
+[tab:move-to-sub-directory]
+# Mover para uma subpasta
+Escolha uma pasta Source com Browse. Use Starts with, Contains, Extensions e Recursive para restringir a pesquisa e clique em Find. Os ficheiros correspondentes aparecem na tabela superior. Add Selected adiciona os resultados selecionados à tabela inferior; Add All adiciona todos. Adicionar um ficheiro não o move.
+
+O campo New subdirectory define a pasta de destino dentro de Source. Depois de adicionar ficheiros, o valor predefinido é o nome sem extensão do primeiro ficheiro Python da lista inferior. Se não existir um ficheiro Python, utiliza-se o texto de Starts with e depois o de Contains; caso contrário, o campo fica vazio. O nome pode ser editado. A tabela inferior mostra cada destino proposto.
+
+Remove Selected retira os ficheiros realçados da lista inferior sem os alterar no disco. Clear List esvazia a lista. Rename Selected altera o nome de destino de um ficheiro selecionado, sem renomear imediatamente o original. Move Selected move os elementos selecionados da lista inferior; Move All move todos os elementos dessa lista.
+
+A opção Add shared_path to moved Python files when missing está ativada por predefinição. Ao mover um ficheiro Python, pode inserir a configuração de importação shared_path quando esse código não existe. Desative-a se o código-fonte Python não puder ser alterado. Os movimentos propostos são registados e exigem confirmação. A substituição de ficheiros de destino existentes requer confirmação separada; mover não cria automaticamente uma cópia de segurança.
+
+[tab:de-deduplicate]
+# Duplicados
+Escolha uma pasta em Directory e clique em Find Duplicates para comparar o conteúdo dos ficheiros. Ficheiros do mesmo tamanho são verificados com somas SHA256. Os ficheiros do mesmo grupo de duplicados têm somas idênticas. A tabela mostra grupo, nome, localização, tamanho e soma de verificação.
+
+Recursive inclui subpastas. User files only exclui nomes de ficheiros ou pastas que começam por um ponto. Minimum bytes e Maximum bytes limitam os tamanhos analisados; um valor máximo vazio não impõe limite superior. Starts with, Contains e Extensions restringem ainda mais a pesquisa.
+
+First Duplicates seleciona as cópias adicionais, deixando por selecionar o primeiro ficheiro listado de cada grupo. Last Duplicates seleciona as cópias adicionais, deixando por selecionar o último ficheiro. Select None limpa a seleção. Verifique os caminhos selecionados antes de usar Delete Selected.
+
+Delete Selected elimina permanentemente os ficheiros realçados após uma confirmação que apresenta os respetivos caminhos. A aplicação avisa se todas as cópias de um grupo estiverem selecionadas, mas não impede a eliminação. Esta ação não pode ser anulada. Guarde uma cópia de segurança separada dos dados importantes.
+
+[tab:log]
+# Registo
+Log regista ações, movimentos propostos, confirmações, erros e resultados da sessão atual. Introduza texto em Search para realçar entradas correspondentes. Matching lines only oculta entradas sem esse texto. Clear Log elimina as entradas visíveis da sessão. O registo da sessão não é gravado num ficheiro e é apagado ao fechar a aplicação.
+
+[tab:config]
+# Configuração
+Config mostra a localização de cpc_dir_sub_fit.json, onde estão guardadas as definições da aplicação. Escolha ou introduza Last directory e clique em Load Directory para a abrir em Explorer. A aplicação guarda definições como a última localização, o separador selecionado, os filtros, a ordenação e o aspeto da janela.
+
+[tab:ui-choices]
+# Opções da interface
+Escolha o tema da interface, o espaçamento ou a densidade e as dimensões da janela. Consoante o módulo partilhado UI Choices disponível, também podem existir Use Current Size e Apply + Save. Estas definições alteram o aspeto da aplicação, não o conteúdo dos ficheiros selecionados.
+
+[tab:gateway]
+# Gateway
+Use o iniciador partilhado Gateway, quando disponível, para aceder a aplicações, ficheiros, pastas ou ligações registadas. Gateway funciona separadamente das pesquisas em Explorer, dos movimentos de ficheiros e da eliminação de duplicados.
+</p></div><div class="langtext" data-lang="ru" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — назначение программы
+Directory Subcontents Fitter проверяет папки, ищет файлы по фильтрам имени и расширения, перемещает файлы в подпапки и обнаруживает дубликаты. В программе предусмотрены Explorer, перемещение по расширению, область перемещения выбранных файлов и проверка дубликатов по контрольным суммам. Сам поиск не перемещает и не удаляет файлы.
+
+Начните с Explorer, чтобы изучить папку. Используйте Move by Extension для распределения файлов по папкам с названиями их расширений или Move to Sub Directory для проверки выбранных файлов и мест назначения перед перемещением. Используйте De-DeDuplicate, чтобы найти совпадающие файлы и затем решить, какие из них удалить.
+
+Перед перемещением, переименованием или удалением файлов создайте резервную копию важных данных. Перемещение меняет расположение файла. Удаление дубликатов необратимо. Перед значительными изменениями щёлкните папку правой кнопкой мыши и выберите Add to archive или ZIP либо скопируйте папку в другое место. Сканирование больших каталогов и сравнение контрольных сумм могут потребовать времени.
+
+[tab:explorer]
+# Проводник
+Укажите папку в поле Directory или выберите Browse, затем нажмите Find. В таблице отображаются имена найденных файлов, даты изменения, расширения и размеры. Select All выбирает все файлы, а Select None снимает выделение. Двойной щелчок открывает файл в связанной программе; файлы Markdown могут открываться в дополнительном просмотрщике Markdown, если он доступен.
+
+Starts with ищет совпадение в начале имени файла. Contains ищет текст в любой части имени. Extensions ограничивает результаты указанными типами, например py, txt или jpg. Разделяйте расширения запятыми, точками с запятой или пробелами. Регистр букв не учитывается. Recursive включает файлы из подпапок; если параметр выключен, отображаются только файлы непосредственно в выбранной папке. Щёлкните заголовок столбца, чтобы изменить сортировку.
+
+[tab:move-by-extension]
+# Перемещение по расширению
+Выберите папку Downloads или другую исходную папку с помощью Browse. При необходимости укажите фильтры Starts with, Contains и Extensions, включите Recursive для обработки подпапок, затем нажмите Find для проверки найденных файлов. Select All и Select None управляют текущим выделением.
+
+Move Selected перемещает только выделенные элементы. Move All перемещает все перечисленные элементы. Каждый файл попадает в подпапку с именем своего расширения внутри исходной родительской папки: например, PDF-файл — в pdf. Файл без расширения помещается в no_extension. Программа показывает предлагаемые перемещения и запрашивает подтверждение. Перед перезаписью любого уже существующего файла назначения запрашивается отдельное подтверждение.
+
+[tab:move-to-sub-directory]
+# Перемещение в подпапку
+Выберите исходную папку Source через Browse. Используйте Starts with, Contains, Extensions и Recursive, чтобы сузить поиск, затем нажмите Find. Подходящие файлы появятся в верхней таблице. Add Selected добавляет выделенные результаты в нижнюю таблицу, Add All добавляет все результаты. Добавление в список не перемещает файл.
+
+Поле New subdirectory задаёт папку назначения внутри Source. После добавления файлов значение по умолчанию берётся из имени без расширения первого файла Python в нижнем списке. Если файлов Python нет, используется текст Starts with, затем Contains; если нет и его, поле остаётся пустым. Имя можно изменить. В нижней таблице указаны предлагаемые места назначения.
+
+Remove Selected исключает выделенные файлы из нижнего списка, не изменяя их на диске. Clear List очищает список. Rename Selected меняет имя файла в месте назначения для одного выделенного файла, но не переименовывает оригинал немедленно. Move Selected перемещает выделенные элементы нижнего списка, а Move All — все элементы этого списка.
+
+Параметр Add shared_path to moved Python files when missing по умолчанию включён. При перемещении файла Python программа может вставить в него настройки импорта shared_path, если соответствующего кода нет. Выключите параметр, если исходный код Python изменять нельзя. Предлагаемые перемещения записываются в журнал и требуют подтверждения. Для перезаписи существующих файлов назначения необходимо отдельное подтверждение; при перемещении резервная копия автоматически не создаётся.
+
+[tab:de-deduplicate]
+# Работа с дубликатами
+Выберите папку в Directory и нажмите Find Duplicates для сравнения содержимого файлов. Файлы одинакового размера проверяются по контрольным суммам SHA256. Файлы в одной группе дубликатов имеют одинаковые контрольные суммы. Таблица показывает группу, имя файла, расположение, размер и контрольную сумму.
+
+Recursive включает подпапки. User files only исключает файлы и папки, имена которых начинаются с точки. Minimum bytes и Maximum bytes ограничивают размер проверяемых файлов; пустое максимальное значение означает отсутствие верхнего предела. Starts with, Contains и Extensions дополнительно ограничивают поиск.
+
+First Duplicates выделяет дополнительные копии, оставляя первый файл в каждой группе невыделенным. Last Duplicates выделяет дополнительные копии, оставляя последний файл в каждой группе невыделенным. Select None снимает выделение. Проверьте выбранные пути перед использованием Delete Selected.
+
+Delete Selected навсегда удаляет выделенные файлы после подтверждения с показом их путей. Если выбраны все копии в группе дубликатов, программа предупреждает об этом, но не блокирует удаление. Отменить удаление невозможно. Храните отдельную резервную копию всех важных данных.
+
+[tab:log]
+# Журнал
+Log записывает действия, предлагаемые перемещения, подтверждения, ошибки и результаты текущего сеанса. Введите текст в Search, чтобы подсветить совпадающие записи. Matching lines only скрывает записи без этого текста. Clear Log очищает отображаемые записи сеанса. Журнал сеанса не записывается в файл и очищается при закрытии программы.
+
+[tab:config]
+# Настройки
+Config показывает расположение файла cpc_dir_sub_fit.json с настройками программы. Выберите или введите Last directory, затем нажмите Load Directory, чтобы открыть папку в Explorer. Программа сохраняет, в частности, последнее расположение, выбранную вкладку, фильтры, сортировку и внешний вид окна.
+
+[tab:ui-choices]
+# Настройки интерфейса
+Выберите тему оформления, интервалы или плотность интерфейса и размеры окна. В зависимости от доступного общего модуля UI Choices также могут быть представлены Use Current Size и Apply + Save. Эти настройки влияют на внешний вид программы, но не на содержимое выбранных файлов.
+
+[tab:gateway]
+# Gateway
+Используйте общий модуль запуска Gateway, если он доступен, для доступа к зарегистрированным программам, файлам, папкам и ссылкам. Gateway работает отдельно от поиска в Explorer, перемещения файлов и удаления дубликатов.
+</p></div><div class="langtext" data-lang="zh" hidden><p style="white-space:pre-wrap">[intro]
+# Directory Subcontents Fitter — 本应用的功能
+Directory Subcontents Fitter 用于检查文件夹、通过文件名和扩展名筛选查找文件、将文件移动到子目录以及检测重复文件。它提供文件浏览、按扩展名移动、移动所选文件和通过校验和检查重复文件的功能。仅搜索文件不会移动或删除文件。
+
+先使用 Explorer 查看文件夹。使用 Move by Extension 将文件整理到以扩展名命名的文件夹中；使用 Move to Sub Directory 可在移动前检查所选文件及其目标位置。使用 De-DeDuplicate 找出内容相同的文件，再决定删除哪些文件。
+
+移动、重命名或删除文件之前，请备份重要数据。移动文件会更改其存储位置，删除重复文件是永久性的。进行大量更改前，可以右键单击文件夹，使用 Add to archive 或 ZIP，也可以将文件夹复制到其他位置。扫描大型目录及比较校验和可能需要一些时间，请耐心等待。
+
+[tab:explorer]
+# 文件浏览
+在 Directory 中输入目录，或选择 Browse，然后单击 Find。表格显示匹配文件的名称、修改日期、扩展名和大小。使用 Select All 全选，或使用 Select None 取消选择。双击文件可通过其关联的应用程序打开；如果安装了配套的 Markdown 查看器，Markdown 文件也可以使用该查看器打开。
+
+Starts with 匹配文件名的开头，Contains 匹配文件名中任意位置的文字。Extensions 将结果限制为 py、txt、jpg 等指定文件类型。多个扩展名可以用逗号、分号或空格分隔。匹配不区分大小写。启用 Recursive 会包括子文件夹中的文件；关闭后只列出所选目录下直接包含的文件。单击列标题可更改排序顺序。
+
+[tab:move-by-extension]
+# 按扩展名移动
+使用 Browse 选择 Downloads 文件夹或其他源目录。可选填 Starts with、Contains、Extensions 筛选条件；如需包含子文件夹，请启用 Recursive，然后单击 Find 查看匹配文件。Select All 和 Select None 用于控制当前选择。
+
+Move Selected 仅移动高亮选中的条目，Move All 移动列表中的全部条目。每个文件都移动到原父目录下以其扩展名命名的子文件夹中，例如 PDF 文件进入 pdf 文件夹。没有扩展名的文件进入 no_extension 文件夹。程序会列出拟执行的移动操作并请求确认。覆盖目标位置中任何已存在的文件前，还会单独请求确认。
+
+[tab:move-to-sub-directory]
+# 移动到子目录
+使用 Browse 选择 Source 源目录。通过 Starts with、Contains、Extensions 和 Recursive 缩小搜索范围，然后单击 Find。匹配文件显示在上方表格中。Add Selected 将选中的结果加入下方表格，Add All 加入全部结果。添加到列表并不会移动文件。
+
+New subdirectory 字段指定 Source 目录内的目标文件夹。添加文件后，其默认名称取自下方列表中第一个 Python 文件去掉扩展名后的名称。如果没有 Python 文件，则先使用 Starts with 的文字，再尝试 Contains 的文字；都没有时保持空白。此名称可以编辑。下方表格显示每个文件的拟定目标位置。
+
+Remove Selected 将选中的文件从下方列表移除，但不更改磁盘上的文件。Clear List 清空下方列表。Rename Selected 修改某个选中文件在目标位置的文件名，不会立即重命名原文件。Move Selected 移动下方列表中的选中条目，Move All 移动该列表中的所有条目。
+
+Add shared_path to moved Python files when missing 选项默认启用。启用后，在移动 Python 文件时，如果文件中缺少相关代码，程序可能会插入 shared_path 导入设置。如果不能修改 Python 源代码，请关闭此选项。拟执行的移动会记录日志并要求确认。覆盖已有目标文件需要另外确认；移动操作不会自动创建备份。
+
+[tab:de-deduplicate]
+# 重复文件处理
+在 Directory 中选择目录并单击 Find Duplicates，比较文件内容。程序对大小相同的文件使用 SHA256 校验和进行检查。同一重复组中的文件具有相同的校验和。表格显示各组、文件名、位置、大小和校验和。
+
+Recursive 包含子文件夹。User files only 排除名称以点号开头的文件或文件夹。Minimum bytes 和 Maximum bytes 限制要检查的文件大小；最大值留空表示没有上限。Starts with、Contains 和 Extensions 可进一步缩小搜索范围。
+
+First Duplicates 选择额外的副本，保留每组列表中的第一个文件不选中。Last Duplicates 选择额外的副本，保留每组最后一个文件不选中。Select None 取消所有选择。使用 Delete Selected 前，请检查选中的文件路径。
+
+Delete Selected 会在显示文件路径并获得确认后永久删除高亮选中的文件。如果选中某个重复组中的所有副本，应用程序会发出警告，但不会阻止删除。删除操作无法撤销。请为所有重要数据保留独立备份。
+
+[tab:log]
+# 日志
+Log 记录当前会话的操作、拟执行的文件移动、确认、错误和结果。在 Search 中输入文字可突出显示匹配条目。Matching lines only 会隐藏不包含这些文字的条目。Clear Log 清除当前显示的会话记录。会话日志不会写入日志文件，关闭应用程序后也会清空。
+
+[tab:config]
+# 配置
+Config 显示保存应用程序设置的 cpc_dir_sub_fit.json 文件位置。选择或输入 Last directory，然后单击 Load Directory，在 Explorer 中打开该目录。应用程序会保存最近使用的位置、选中的标签页、筛选条件、排序方式和窗口外观等设置。
+
+[tab:ui-choices]
+# 界面选项
+选择界面主题、间距或密度以及窗口尺寸。根据可用的共享 UI Choices 模块，界面中也可能提供 Use Current Size 和 Apply + Save 控件。这些设置只影响应用程序外观，不会改变所选文件的内容。
+
+[tab:gateway]
+# Gateway 启动器
+如有共享 Gateway 模块，可以使用 Gateway 启动器访问已注册的应用程序、文件、文件夹或链接。Gateway 独立于 Explorer 搜索、文件移动和重复文件删除功能运行。
+</p></div></div>
+  </section>
+  
+  <section class="panel" id="features"><h2>Features</h2><div id="features-body"><p>Features not supplied.</p></div></section>
+  
+  <section class="panel" id="primary-poster"><h2>Primary poster</h2><div class="posters"><a href="images/poster-cpc-dir-sub-fit-poster.webp"><img src="images/poster-cpc-dir-sub-fit-poster.webp" alt="Primary poster" loading="lazy"></a></div></section>
+  <section class="panel" id="posters"><h2>Posters (1)</h2><div class="posters"><a href="images/poster-cpc-dir-sub-fit-poster.webp"><img src="images/poster-cpc-dir-sub-fit-poster.webp" alt="cpc_dir_sub_fit_poster.webp" loading="lazy"></a></div></section>
+  <section class="panel" id="repository-files"><h2>Repository files</h2><section class="panel"><h2>Additional HTML pages (3)</h2><ul><li><a href="files/cpc_dir_sub_fit-brochure.htm">cpc_dir_sub_fit-brochure.htm</a> (435,920 bytes)</li><li><a href="files/depth_lifter_learning_page.html">depth_lifter_learning_page.html</a> (4,346,458 bytes)</li><li><a href="files/learn.htm">learn.htm</a> (6,741,155 bytes)</li></ul></section><section class="panel"><h2>Report indexes (1)</h2><ul><li><a href="files/depth_lifter_reports/index.html">depth_lifter_reports</a> (17 files)</li></ul></section></section>
+</main>
+</div>
+<footer class="footer" id="connect"><div class="wrap"><div class="footer-top"><div>
+<img class="footer-brand-logo" src="images/logo-logo.png" alt="" width="78" height="78">
+<p class="kicker">Keep exploring</p><h2>There is always another door.</h2>
+<p>Mr Bmulti is the creative and educational work of Christopher Patrick Cotton, bringing songs, learning resources, science, software, art, and questions together.</p>
+<p>Most importantly: keep the curiosity, and keep asking for evidence.</p>
+<p class="funding-note"><strong>Funding is very welcome, as I am a tourist on this planet.</strong> With funding to bring in some assistance, there will be 1,000 songs, more than 20 books, a peer-to-peer sharing app for media, and many more public applications and fun learning resources.</p>
+<div class="support-art"><img alt="Colourful illustrated record artwork about supporting music and creativity" loading="lazy" src="data:image/webp;base64,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"><span>Every contribution helps more songs, books and learning tools reach new people.</span></div>
+</div>
+<nav class="footer-links" aria-label="Projects, contact and funding">
+<a href="https://mrbmulti.com" rel="noopener noreferrer" target="_blank">Stories Songs Explorer<span>mrbmulti.com ↗</span></a>
+<a href="https://bmulti.github.io/portfolio/" rel="noopener noreferrer" target="_blank">Python AI Framework and Sample Applications<span>bmulti.github.io/portfolio ↗</span></a>
+<a href="https://oncotton.github.io/index/" rel="noopener noreferrer" target="_blank">Golang and JavaScript Shares<span>oncotton.github.io/index ↗</span></a>
+<a href="https://mrbmullti.github.io/index/" rel="noopener noreferrer" target="_blank">Gateway and few Wild ideas<span>mrbmullti.github.io/index ↗</span></a>
+<a href="https://x.com/Trumpocene" rel="noopener noreferrer" target="_blank">@Trumpocene<span>On X ↗</span></a>
+<a href="mailto:bmulti@gmail.com">Send an email<span>bmulti@gmail.com ↗</span></a>
+<a class="support-link" href="https://buymeacoffee.com/bmutli" rel="noopener noreferrer" target="_blank">Buy Me a Coffee<span>Support the learning projects ↗</span></a>
+<a class="support-link" href="https://www.paypal.com/ncp/payment/YTNE39LWA4WMN" rel="noopener noreferrer" target="_blank">PayPal<span>Contribute to future resources ↗</span></a>
+</nav></div>
+<div class="footer-bottom"><span>© <span id="footer-year"></span> Christopher Patrick Cotton · Mr Bmulti · A little museum of ideas</span><a href="#top">Back to the top ↑</a></div></div></footer>
+<dialog id="viewer" aria-label="Poster viewer">
+  <div class="v-bar"><strong id="v-title">Poster</strong>
+    <button type="button" id="v-out" aria-label="Zoom out">−</button><button type="button" id="v-fit">Fit</button><button type="button" id="v-in" aria-label="Zoom in">+</button>
+    <button type="button" class="close" id="v-close">Close ✕</button></div>
+  <div class="v-stage" id="v-stage"><a id="v-link" href="#" title="Open the repository index"><img id="v-img" alt="" src="data:,"></a></div>
+  <div class="v-hint">Click the poster to open its repository index · Esc or click outside to close · + − or Control and mouse wheel to zoom</div>
+</dialog>
+<script>
+
+var footerYear=document.getElementById("footer-year");
+if(footerYear&&!/^\d{4}$/.test(footerYear.textContent.trim()))footerYear.textContent=new Date().getFullYear();
+
+(function(){
+var $=function(s,r){return (r||document).querySelector(s);},$$=function(s,r){return Array.from((r||document).querySelectorAll(s));};
+/* interface words follow the selected language; the documentation text itself comes from the language files */
+var T={
+"en":{menu:"Menu",close:"Close",lang:"Language",step:"Step {n} of {t}",steps:"{t} steps",min:"{m} min read",zoom:"Tap a screenshot to enlarge",next:"Next",prev:"Previous",onpage:"On this page",more:"More pages",start:"Start the tour"},
+"ceb":{menu:"Menu",close:"Isira",lang:"Pinulongan",step:"Lakang {n} sa {t}",steps:"{t} ka lakang",min:"{m} min nga basahon",zoom:"Pindota ang screenshot aron mapadako",next:"Sunod",prev:"Nauna",onpage:"Niining panid",more:"Dugang mga panid",start:"Sugdi ang tour"},
+"de":{menu:"Menü",close:"Schließen",lang:"Sprache",step:"Schritt {n} von {t}",steps:"{t} Schritte",min:"{m} Min. Lesezeit",zoom:"Screenshot antippen zum Vergrößern",next:"Weiter",prev:"Zurück",onpage:"Auf dieser Seite",more:"Weitere Seiten",start:"Tour starten"},
+"es":{menu:"Menú",close:"Cerrar",lang:"Idioma",step:"Paso {n} de {t}",steps:"{t} pasos",min:"{m} min de lectura",zoom:"Toca una captura para ampliarla",next:"Siguiente",prev:"Anterior",onpage:"En esta página",more:"Más páginas",start:"Empezar el recorrido"},
+"fr":{menu:"Menu",close:"Fermer",lang:"Langue",step:"Étape {n} sur {t}",steps:"{t} étapes",min:"{m} min de lecture",zoom:"Touchez une capture pour l’agrandir",next:"Suivant",prev:"Précédent",onpage:"Sur cette page",more:"Autres pages",start:"Commencer la visite"},
+"id":{menu:"Menu",close:"Tutup",lang:"Bahasa",step:"Langkah {n} dari {t}",steps:"{t} langkah",min:"{m} mnt baca",zoom:"Ketuk tangkapan layar untuk memperbesar",next:"Berikutnya",prev:"Sebelumnya",onpage:"Di halaman ini",more:"Halaman lain",start:"Mulai tur"},
+"it":{menu:"Menu",close:"Chiudi",lang:"Lingua",step:"Passo {n} di {t}",steps:"{t} passi",min:"{m} min di lettura",zoom:"Tocca uno screenshot per ingrandirlo",next:"Avanti",prev:"Indietro",onpage:"In questa pagina",more:"Altre pagine",start:"Inizia il tour"},
+"ja":{menu:"メニュー",close:"閉じる",lang:"言語",step:"ステップ {n} / {t}",steps:"{t} ステップ",min:"読了目安 {m} 分",zoom:"スクリーンショットをタップすると拡大します",next:"次へ",prev:"前へ",onpage:"このページの内容",more:"その他のページ",start:"ツアーを始める"},
+"ko":{menu:"메뉴",close:"닫기",lang:"언어",step:"{t}단계 중 {n}단계",steps:"{t}단계",min:"읽는 시간 {m}분",zoom:"스크린샷을 누르면 확대됩니다",next:"다음",prev:"이전",onpage:"이 페이지 목차",more:"다른 페이지",start:"둘러보기 시작"},
+"ms":{menu:"Menu",close:"Tutup",lang:"Bahasa",step:"Langkah {n} daripada {t}",steps:"{t} langkah",min:"{m} min bacaan",zoom:"Ketik tangkapan skrin untuk membesarkan",next:"Seterusnya",prev:"Sebelumnya",onpage:"Pada halaman ini",more:"Halaman lain",start:"Mulakan lawatan"},
+"nl":{menu:"Menu",close:"Sluiten",lang:"Taal",step:"Stap {n} van {t}",steps:"{t} stappen",min:"{m} min leestijd",zoom:"Tik op een schermafbeelding om te vergroten",next:"Volgende",prev:"Vorige",onpage:"Op deze pagina",more:"Andere pagina’s",start:"Start de rondleiding"},
+"pt":{menu:"Menu",close:"Fechar",lang:"Idioma",step:"Passo {n} de {t}",steps:"{t} passos",min:"{m} min de leitura",zoom:"Toque numa captura para ampliar",next:"Seguinte",prev:"Anterior",onpage:"Nesta página",more:"Outras páginas",start:"Iniciar o percurso"},
+"ru":{menu:"Меню",close:"Закрыть",lang:"Язык",step:"Шаг {n} из {t}",steps:"Шагов: {t}",min:"{m} мин чтения",zoom:"Нажмите на скриншот, чтобы увеличить",next:"Далее",prev:"Назад",onpage:"На этой странице",more:"Другие страницы",start:"Начать обзор"},
+"zh":{menu:"菜单",close:"关闭",lang:"语言",step:"第 {n} 步，共 {t} 步",steps:"共 {t} 步",min:"阅读约 {m} 分钟",zoom:"点击截图可放大",next:"下一步",prev:"上一步",onpage:"本页内容",more:"更多页面",start:"开始导览"}
+};
+T["es-mx"]=T.es;
+var sel=document.getElementById("doclang"),sel2=null,storageKey="mrbmulti.documentation.language";
+function code(){var v=String((sel&&sel.value)||document.documentElement.lang||"en").toLowerCase().replace("_","-");return T[v]?v:(T[v.split("-")[0]]?v.split("-")[0]:"en");}
+function t(k,o){var s=(T[code()]||T.en)[k]||T.en[k]||"";if(o)for(var x in o)s=s.replace("{"+x+"}",o[x]);return s;}
+function i18n(){$$("[data-i]").forEach(function(e){e.textContent=t(e.dataset.i);});$$("[data-ia]").forEach(function(e){e.setAttribute("aria-label",t(e.dataset.ia));});}
+function normal(value){return String(value||"").normalize("NFKC").toLowerCase().replace(/\b(tab|screenshot|screen)\b/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();}
+
+/* screenshots come from the gallery list, which stays at the end of the page */
+var shots=$$("#screenshots .gallery figure").map(function(f){var im=f.querySelector("img"),st=f.querySelector("strong"),cp=f.querySelector("figcaption");var title=st?st.textContent.trim():(im?im.alt:"");
+  return {src:im?im.getAttribute("src"):"",alt:im?im.alt:title,title:title,cap:cp?cp.textContent.replace(title,"").trim():"",key:normal(title)};});
+function find(name,used){if(!name)return -1;var i;
+  for(i=0;i<shots.length;i++)if(!used[i]&&shots[i].key===name)return i;
+  for(i=0;i<shots.length;i++){var k=shots[i].key;if(!used[i]&&k.length>=4&&name.length>=4&&(name.indexOf(k)>-1||k.indexOf(name)>-1))return i;}
+  return -1;}
+function findAll(name,used){var r=[],i;if(!name)return r;
+  for(i=0;i<shots.length;i++)if(!used[i]&&shots[i].key===name)r.push(i);
+  for(i=0;i<shots.length;i++){var k=shots[i].key;if(r.indexOf(i)<0&&!used[i]&&k.length>=4&&name.length>=4&&(name.indexOf(k)>-1||k.indexOf(name)>-1))r.push(i);}
+  return r;}
+function makeShot(s){var f=document.createElement("figure");f.className="shot";
+  var bar=document.createElement("div");bar.className="bar";bar.innerHTML="<i></i><i></i><i></i>";var sp=document.createElement("span");sp.textContent=s.title;bar.appendChild(sp);
+  var im=document.createElement("img");im.src=s.src;im.alt=s.alt;im.loading="lazy";f.appendChild(bar);f.appendChild(im);
+  if(s.cap){var c=document.createElement("figcaption");c.textContent=s.cap;f.appendChild(c);}return f;}
+
+/* plain text blocks (description, features): screenshot directly after the matching heading */
+function placeInto(root){if(!root||root.dataset.placed)return;root.dataset.placed="1";var used={};
+  $$("h2,h3,h4,h5,h6",root).forEach(function(h){var i=find(normal(h.textContent),used);if(i>-1){used[i]=1;h.after(makeShot(shots[i]));}});}
+
+/* language text becomes a guided tour: one numbered step per heading, its screenshot after its text */
+function stepify(lt){if(lt.dataset.built)return;lt.dataset.built="1";
+  var c=code(),kids=Array.from(lt.childNodes),frag=document.createDocumentFragment(),cur=null,lead=null,n=0,used={},steps=[];
+  kids.forEach(function(node){
+    if(node.nodeType===1&&/^H[2-4]$/.test(node.tagName)){n++;
+      cur=document.createElement("section");cur.className="step";cur.dataset.n=n;
+      var num=document.createElement("div");num.className="step-n";num.textContent=n;num.setAttribute("aria-hidden","true");
+      var body=document.createElement("div");body.className="step-body";
+      cur.appendChild(num);cur.appendChild(body);if(!node.id)node.id="tour-"+c+"-"+n;body.appendChild(node);frag.appendChild(cur);steps.push({el:cur,body:body,h:node});}
+    else if(!cur){if(!lead){lead=document.createElement("div");lead.className="lead";frag.insertBefore(lead,frag.firstChild);}lead.appendChild(node);}
+    else steps[steps.length-1].body.appendChild(node);});
+  steps.forEach(function(s){findAll(normal(s.h.textContent),used).forEach(function(k){used[k]=1;s.body.appendChild(makeShot(shots[k]));});});
+  /* a screenshot with no matching heading goes after the first block of text that names it (the intro first) */
+  shots.forEach(function(s,k){if(used[k]||!s.key)return;var hosts=(lead?[lead]:[]).concat(steps.map(function(x){return x.body;}));
+    for(var j=0;j<hosts.length;j++)if(normal(hosts[j].textContent).indexOf(s.key)>-1){hosts[j].appendChild(makeShot(s));used[k]=1;break;}});
+  steps.forEach(function(s,i){
+    if(i<steps.length-1){var nx=steps[i+1],a=document.createElement("a");a.className="next";a.href="#"+nx.h.id;
+      var l=document.createElement("b");l.dataset.i="next";l.textContent=t("next");var sp=document.createElement("span");sp.textContent=nx.h.textContent;a.appendChild(l);a.appendChild(document.createTextNode("→"));a.appendChild(sp);s.body.appendChild(a);}});
+  lt.replaceChildren(frag);lt.dataset.steps=n;
+  var txt=lt.textContent||"",cjk=/[\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7af]/.test(txt);
+  lt.dataset.mins=Math.max(1,Math.round(cjk?txt.length/400:txt.split(/\s+/).length/200));}
+
+function meta(){var m=document.getElementById("tour-meta");if(!m)return;var lt=$(".langtext:not([hidden])");
+  if(!lt){m.textContent="";return;}var parts=[];if(+lt.dataset.steps)parts.push(t("steps",{t:lt.dataset.steps}));parts.push(t("min",{m:lt.dataset.mins||1}));if(shots.length)parts.push(t("zoom"));m.textContent=parts.join(" · ");}
+
+/* page index: sidebar (wide screens) and drawer (narrow screens) from the same headings */
+var items=[];
+function index(){var lists=[$("#toc"),$("#toc-m")].filter(Boolean);lists.forEach(function(l){l.replaceChildren();});items=[];
+  function add(el,id,text,sub,num){items.push({h:el,id:id});lists.forEach(function(l){var a=document.createElement("a");a.href="#"+id;a.className=sub?"lv2":"lv1";a.dataset.id=id;
+    if(num){var b=document.createElement("span");b.className="n";b.textContent=num;a.appendChild(b);}var s=document.createElement("span");s.textContent=text;a.appendChild(s);l.appendChild(a);});}
+  $$("#application h2,#application h3,#application h4,#application h5,#application h6").forEach(function(h,i){
+    if(h.closest("[hidden]"))return;if(!h.id)h.id="section-"+i;
+    var sub=!!h.closest(".langtext,#description-text,#features-body"),st=h.closest(".step");
+    add(h,h.id,h.textContent,sub,st?st.dataset.n:"");});
+  var f=document.getElementById("connect");if(f)add(f,"connect",t("contact")||"Contact and funding",false,"");}
+T.en.contact="Contact and funding";
+
+/* follow the reader: highlight in the index, step tracker on narrow screens */
+var raf=0,narrow=window.matchMedia("(max-width:999px)");
+function H(){var tb=document.getElementById("topbar");var h=tb?tb.offsetHeight:64;document.documentElement.style.setProperty("--hh",h+"px");return h;}
+function spy(){raf=0;var hh=H(),cur=null;
+  items.forEach(function(it){if(it.h.getBoundingClientRect().top<=hh+70)cur=it;});
+  $$(".toc a").forEach(function(a){a.classList.toggle("on",!!cur&&a.dataset.id===cur.id);});
+  var side=$(".side"),act=$("#toc a.on");
+  if(side&&act&&side.offsetParent!==null){var r=act.getBoundingClientRect(),sr=side.getBoundingClientRect();if(r.top<sr.top+30)side.scrollTop-=sr.top+30-r.top;else if(r.bottom>sr.bottom-10)side.scrollTop+=r.bottom-sr.bottom+10;}
+  var steps=$$(".langtext:not([hidden]) .step"),bar=document.getElementById("tourbar"),idx=-1;
+  steps.forEach(function(s,i){if(s.getBoundingClientRect().top<=hh+70)idx=i;s.classList.remove("cur");});
+  var on=narrow.matches&&steps.length&&idx>-1&&steps[steps.length-1].getBoundingClientRect().bottom>hh+10;
+  if(idx>-1)steps[idx].classList.add("cur");
+  bar.hidden=!on;if(on){$("#tb-step").textContent=t("step",{n:idx+1,t:steps.length});$("#tb-title").textContent=steps[idx].querySelector(".step-body>h2,.step-body>h3,.step-body>h4").textContent;
+    $("#tb-fill").style.width=((idx+1)/steps.length*100)+"%";$("#tb-prev").disabled=idx<1;$("#tb-next").disabled=idx>=steps.length-1;bar._steps=steps;bar._idx=idx;}}
+function req(){if(!raf)raf=requestAnimationFrame(spy);}
+function go(d){var bar=document.getElementById("tourbar"),s=bar._steps,i=bar._idx+d;if(s&&s[i])s[i].scrollIntoView({behavior:"smooth",block:"start"});}
+document.getElementById("tb-prev").onclick=function(){go(-1);};document.getElementById("tb-next").onclick=function(){go(1);};
+window.addEventListener("scroll",req,{passive:true});window.addEventListener("resize",req);
+
+/* hamburger drawer */
+var drawer=document.getElementById("drawer"),scrim=document.getElementById("scrim"),burger=document.getElementById("burger");
+function openMenu(){drawer.classList.add("open");scrim.classList.add("open");drawer.setAttribute("aria-hidden","false");burger.setAttribute("aria-expanded","true");document.documentElement.style.overflow="hidden";document.getElementById("dr-close").focus();}
+function closeMenu(back){drawer.classList.remove("open");scrim.classList.remove("open");drawer.setAttribute("aria-hidden","true");burger.setAttribute("aria-expanded","false");document.documentElement.style.overflow="";if(back)burger.focus();}
+burger.onclick=function(){drawer.classList.contains("open")?closeMenu(true):openMenu();};
+document.getElementById("dr-close").onclick=function(){closeMenu(true);};scrim.onclick=function(){closeMenu(true);};
+drawer.addEventListener("click",function(e){if(e.target.closest("a"))closeMenu(false);});
+document.addEventListener("keydown",function(e){if(!drawer.classList.contains("open"))return;
+  if(e.key==="Escape")closeMenu(true);
+  if(e.key==="Tab"){var f=$$("a[href],button,select",drawer).filter(function(x){return !x.disabled&&x.offsetParent!==null;});if(!f.length)return;var a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus();}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus();}}});
+narrow.addEventListener&&narrow.addEventListener("change",function(){if(!narrow.matches)closeMenu(false);req();});
+
+/* language */
+function language(){
+  if(sel){$$(".langtext").forEach(function(d){d.hidden=d.dataset.lang!==sel.value;});document.documentElement.lang=sel.value;if(sel2)sel2.value=sel.value;}
+  $$(".langtext:not([hidden])").forEach(stepify);
+  i18n();meta();index();req();}
+placeInto(document.getElementById("description-text"));placeInto(document.getElementById("features-body"));
+if(sel){var saved="";try{saved=localStorage.getItem(storageKey)||"";}catch(e){}
+  var options=Array.from(sel.options);var choice=options.find(function(o){return o.value===saved;})||options.find(function(o){return /^en(?:[-_]|$)/i.test(o.value)||/^English$/i.test(o.textContent.trim());});if(choice)sel.value=choice.value;
+  var holder=document.getElementById("dr-sel");if(holder){sel2=sel.cloneNode(true);sel2.id="doclang2";sel2.value=sel.value;holder.replaceWith(sel2);}
+  function chosen(v){sel.value=v;try{localStorage.setItem(storageKey,sel.value);}catch(e){}language();}
+  sel.addEventListener("change",function(){chosen(sel.value);});
+  if(sel2)sel2.addEventListener("change",function(){chosen(sel2.value);});}
+
+var extra=document.getElementById("extra-links"),extraM=document.getElementById("extra-links-m"),seenPages=new Set();
+document.querySelectorAll("#repository-files a[href],#description-text a[href],#langtexts a[href],#features a[href]").forEach(function(a){
+  if(a.classList.contains("next"))return;
+  var url;try{url=new URL(a.getAttribute("href"),document.baseURI);}catch(e){return;}
+  if(!/\.html?$/i.test(url.pathname)||seenPages.has(url.href))return;seenPages.add(url.href);
+  [extra,extraM].forEach(function(box){if(!box)return;var copy=a.cloneNode(true);copy.className="lv1";box.appendChild(copy);});
+});
+if(extra&&extra.children.length){document.getElementById("extra-pages").hidden=false;document.getElementById("extra-m").hidden=false;}
+language();
+var description=document.getElementById("description-text").textContent.trim().replace(/\s+/g," ");if(description)document.getElementById("header-description").textContent=description.length>120?description.slice(0,117)+"…":description;
+H();req();
+})();
+var modal=document.getElementById("viewer"),img=document.getElementById("v-img"),link=document.getElementById("v-link"),stage=document.getElementById("v-stage"),vt=document.getElementById("v-title"),scale=1,fitW=0;
+function apply(){if(scale<=1){scale=1;img.style.maxWidth=img.style.maxHeight=img.style.width="";return;}img.style.maxWidth="none";img.style.maxHeight="none";img.style.width=Math.round(fitW*scale)+"px";}
+function zoom(f){if(scale===1)fitW=img.getBoundingClientRect().width;scale=Math.min(8,Math.max(1,scale*f));apply();}
+function shut(){modal.close();}
+document.getElementById("application").addEventListener("click",function(e){var picture=e.target.closest(".shot img,.gallery img,.posters img");if(!picture)return;e.preventDefault();scale=1;apply();img.src=picture.src;img.alt=picture.alt;link.href=picture.src;vt.textContent=picture.alt;modal.showModal();stage.scrollTop=stage.scrollLeft=0;});
+document.getElementById("v-in").onclick=function(){zoom(1.25);};document.getElementById("v-out").onclick=function(){zoom(.8);};document.getElementById("v-fit").onclick=function(){scale=1;apply();};document.getElementById("v-close").onclick=shut;
+modal.addEventListener("click",function(e){if(e.target===modal)shut();});stage.addEventListener("wheel",function(e){if(e.ctrlKey){e.preventDefault();zoom(e.deltaY<0?1.2:.83);}},{passive:false});
+
+</script>
+</body></html>

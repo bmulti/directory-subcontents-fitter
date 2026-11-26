@@ -1,0 +1,83 @@
+source_file = cpc_dir_sub_fit.py
+source_modified = 2026-11-18 13:06:15
+name(parameters) -> return  [decorators]    first line   (classes: first-last)
+
+_deep_merge(base, update)    220
+attach(parent, context=None)    1679
+load_config()    230
+main(argv=None)    1708
+parse_args(argv=None)    1696
+save_config(cfg)    248
+class DirectoryContents(FileOperationsMixin, tk.Frame)    965-1676
+    __init__(self, master, initial_directory=None, embedded=False, host_context=None)    966
+    _apply_selected_theme(self, theme=None, density=None, _config=None)    1197
+    _apply_theme(self)    1609
+    _build_config_tab(self)    1126
+    _build_directory_tab(self)    1074
+    _build_gateway_tab(self)    1302
+    _build_local_ui_tab(self)    1232
+    _build_ui(self)    1038
+    _build_ui_tab(self)    1168
+    _companion_candidates(self, stem)    1486
+    _config_browse(self)    1587
+    _find_directory_files(self)    1119
+    _launch_companion(self, stem, argument)    1503
+    _load_config_directory(self)    1594
+    _mousewheel(self, event)    1578
+    _on_close(self)    1673
+    _render_rows(self)    1414
+    _restore_tab(self)    1641
+    _save_config_dict(self, _config=None)    1194
+    _set_status(self, message)    1636
+    _set_title(self)    1628
+    _tab_changed(self, _event=None)    1651
+    _use_current_size(self)    1599
+    apply_ui_choices(self, theme=None, density=None, _config=None)    1605
+    choose_directory(self)    1460
+    copy_file_names(self)    1471
+    load_directory(self, directory, quiet=False)    1327
+    navigate(self, directory)    1363
+    open_directory(self, directory)    1359
+    open_folder(self)    1563
+    open_selected(self, _event=None)    1529
+    refresh(self)    1367
+    set_directory(self, directory)    1355
+    shutdown(self)    1659
+    sort_by(self, column)    1452
+class FileOperationsMixin    262-962
+    _add_all_found(self)    524
+    _add_paths(self, paths)    527
+    _add_selected_found(self)    520
+    _browse_download_dir(self)    358
+    _browse_dup_dir(self)    790
+    _browse_move_dir(self)    458
+    _build_downloads_tab(self)    326
+    _build_duplicate_tab(self)    752
+    _build_log_tab(self)    275
+    _build_move_tab(self)    400
+    _checksum(path)  [@staticmethod]    742
+    _clear_log(self)    320
+    _clear_selected_move(self)    616
+    _delete_selected_duplicates(self)    902
+    _destination_for(self, path)    555
+    _drain_tasks(self)    866
+    _duplicate_worker(self, opts)    823
+    _execute_moves(self, plans, operation)    647
+    _extensions(self)    469
+    _find_download_files(self)    364
+    _find_move_files(self)    492
+    _insert_shared_path(self, path)    703
+    _log(self, message)    265
+    _match_name(self, path)    479
+    _matches_filter(path, starts, contains, extensions)  [@staticmethod]    473
+    _move_download_files(self, all_files)    386
+    _move_files(self, all_files)    625
+    _parse_extensions(value)  [@staticmethod]    465
+    _remove_selected_move(self)    606
+    _rename_selected_move(self)    588
+    _render_log(self)    296
+    _scan_paths(self, root, recursive)    483
+    _select_duplicates(self, last)    894
+    _selected_move_file(self, _event=None)    544
+    _start_duplicate_scan(self)    795
+    _update_destinations(self)    567

@@ -1,0 +1,387 @@
+source_file = cpc_dir_sub_fit.py
+source_modified = 2026-11-18 13:06:15
+name: annotation = value    line numbers   (functions: name() with their variables indented; classes: first-last)
+
+APP_DIR = Path(__file__).resolve().parent    191
+APP_NAME = named    189
+APP_VERSION = '2026-09-12'    190
+CONFIG_PATH = APP_DIR / 'cpc_dir_sub_fit.json'    192
+DEFAULT_CONFIG = {'ui_theme_name': 'Light Blue', 'ui_density': 'No…    194
+description = 'Sub directory move to'    22
+GatewayController = None    153
+named = 'Directory Subcontents Fitter'    20
+project = 'Python'    23
+shared_path = Path(__file__).resolve().parent.parent    130
+TV_DIRECTORY = {'title': 'Directory files', 'columns': ('date', …    156
+TV_DOWNLOADS = {'title': 'Download files', 'columns': ('name', '…    175
+TV_DUPLICATES = {'title': 'Duplicate files', 'columns': ('group',…    181
+TV_FOUND = {'title': 'Matching files', 'columns': ('name', '…    163
+TV_SELECTED = {'title': 'Files selected for moving', 'columns':…    169
+ui_choices = None    147
+version = '7'    21
+_deep_merge()
+    key
+    result
+    value
+attach()
+    context
+    initial_directory
+load_config()
+    cfg
+    loaded
+main()
+    args
+    root
+parse_args()
+    parser
+save_config()
+    temp
+class DirectoryContents    965-1676
+    self._move_subdir_from_selection = False    992
+    self._tasks = queue.Queue()    996
+    self._worker_active = False    997
+    self.cfg = load_config()    985
+    self.colors = dict(self.host_context.get('colors') or theme_pal…    1214, 1220, 1226, 1611, 1617
+    self.config_tab = ttk.Frame(self.notebook)    1044
+    self.count_var = tk.StringVar(value='0 files')    1082
+    self.current_directory = None    986, 1345
+    self.density_var = self.ui_choices_controller.density_var    1184, 1259
+    self.destination_names = {}    991
+    self.directory_contains_var = tk.StringVar(value=self.cfg.get('directory_contai…    1088
+    self.directory_dir_var = tk.StringVar(value=self.cfg.get('last_directory',…    1078
+    self.directory_extensions_var = tk.StringVar(value=self.cfg.get('directory_extens…    1089
+    self.directory_recursive_var = tk.BooleanVar(value=self.cfg.get('directory_recur…    1090
+    self.directory_starts_var = tk.StringVar(value=self.cfg.get('directory_starts…    1087
+    self.directory_tab = ttk.Frame(self.notebook)    1043
+    self.download_paths = {}    989
+    self.downloads_tab = ttk.Frame(self.notebook)    1047
+    self.duplicate_groups = []    994
+    self.duplicate_paths = {}    993
+    self.duplicate_tab = ttk.Frame(self.notebook)    1049
+    self.embedded = bool(embedded or not isinstance(master, (tk.Tk, t…    969
+    self.found_paths = {}    988
+    self.gateway_controller = GatewayController(self.gateway_tab, app_title=APP…    1312
+    self.gateway_tab = ttk.Frame(self.notebook)    1046
+    self.height_var = self.ui_choices_controller.window_height_var    1186, 1283
+    self.host_context = host_context or {}    972
+    self.last_dir_var = tk.StringVar(value=str(self.cfg.get('last_directo…    1150
+    self.log_entries = []    995
+    self.log_tab = ttk.Frame(self.notebook)    1050
+    self.move_tab = ttk.Frame(self.notebook)    1048
+    self.notebook = ttk.Notebook(self)    1039
+    self.rows = []    987, 1405
+    self.selected_paths = {}    990
+    self.show_gateway = True if not self.embedded else bool(self.host_con…    973
+    self.show_ui_choices = True if not self.embedded else bool(self.host_con…    977
+    self.sort_column = str(self.cfg.get('sort_column', 'date') or 'date')    999, 1456
+    self.sort_reverse = bool(self.cfg.get('sort_reverse', True))    1000, 1454, 1457
+    self.status_var = tk.StringVar(value='Ready')    1115
+    self.theme_var = self.ui_choices_controller.theme_var    1183, 1245
+    self.tree = build_treeview(body, TV_DIRECTORY, owner=self, ca…    1109
+    self.ui_choices_controller = ui_choices.attach(self.ui_tab, window=self.window…    1172, 1189
+    self.ui_tab = ttk.Frame(self.notebook)    1045
+    self.width_var = self.ui_choices_controller.window_width_var    1185, 1273
+    self.window = master.winfo_toplevel()    981
+    __init__()
+        height
+        requested
+        width
+    _apply_selected_theme()
+        density
+        height
+        theme
+        width
+    _build_config_tab()
+        config_var
+        frame
+    _build_directory_tab()
+        body
+        directory_actions
+        directory_filters
+        label
+        top
+        var
+    _build_local_ui_tab()
+        frame
+    _companion_candidates()
+        candidate
+        key
+        root
+        roots
+        seen
+        suffix
+    _config_browse()
+        chosen
+    _find_directory_files()
+        requested
+    _launch_companion()
+        candidate
+        python_cmd
+    _load_config_directory()
+        value
+    _render_rows()
+        date_text
+        idx
+        iid
+        key
+        ordered
+        reverse
+        row
+        sort_key
+    _restore_tab()
+        tab_id
+        wanted
+    _use_current_size()
+        target
+    choose_directory()
+        chosen
+    copy_file_names()
+        names
+        text
+    load_directory()
+        path
+    open_folder()
+        folder
+        selected
+        tags
+    open_selected()
+        iid
+        path
+        selected
+        tags
+    refresh()
+        contains
+        extensions
+        modified
+        path
+        rows
+        size
+        starts
+        stat
+class FileOperationsMixin    262-962
+    self._move_subdir_from_selection = True    551, 612, 620, 643
+    self._worker_active = True    819, 871
+    self.download_contains_var = tk.StringVar()    338
+    self.download_dir_var = tk.StringVar(value=str(Path.home() / 'Downloads'))    332
+    self.download_extensions_var = tk.StringVar()    339
+    self.download_recursive_var = tk.BooleanVar(value=False)    340
+    self.download_starts_var = tk.StringVar()    337
+    self.download_tree = build_treeview(outer, TV_DOWNLOADS, owner=self, c…    354
+    self.dup_contains_var = tk.StringVar()    773
+    self.dup_dir_var = tk.StringVar(value=str(Path.home() / 'Downloads'))    758
+    self.dup_extensions_var = tk.StringVar()    774
+    self.dup_max_var = tk.StringVar(value=self.cfg.get('duplicate_max_si…    766
+    self.dup_min_var = tk.StringVar(value=self.cfg.get('duplicate_min_si…    765
+    self.dup_recursive_var = tk.BooleanVar(value=False)    763
+    self.dup_starts_var = tk.StringVar()    772
+    self.dup_user_files_var = tk.BooleanVar(value=self.cfg.get('duplicate_user_…    764
+    self.duplicate_groups = []    873, 961
+    self.duplicate_tree = build_treeview(outer, TV_DUPLICATES, owner=self, …    786
+    self.found_tree = build_treeview(found_box, TV_FOUND, owner=self, c…    432
+    self.insert_path_var = tk.BooleanVar(value=self.cfg.get('insert_shared_p…    439
+    self.log_only_var = tk.BooleanVar(value=False)    282
+    self.log_search_var = tk.StringVar()    279
+    self.log_status_var = tk.StringVar(value='Session log: 0 entries')    286
+    self.log_text = tk.Text(self.log_tab, wrap='none', state='disable…    288
+    self.move_contains_var = tk.StringVar(value=self.cfg.get('move_contains', …    412
+    self.move_dir_var = tk.StringVar(value=self.cfg.get('move_directory')…    406
+    self.move_extensions_var = tk.StringVar(value=self.cfg.get('move_extensions'…    413
+    self.move_recursive_var = tk.BooleanVar(value=self.cfg.get('move_recursive'…    414
+    self.move_starts_var = tk.StringVar(value=self.cfg.get('move_starts', ''…    411
+    self.move_subdir_var = tk.StringVar(value=self.cfg.get('move_subdir', ''…    437
+    self.selected_tree = build_treeview(selected_tree_box, TV_SELECTED, ow…    452
+    _add_paths()
+        added
+        existing
+        iid
+        path
+    _add_selected_found()
+        selected
+    _browse_download_dir()
+        chosen
+    _browse_dup_dir()
+        chosen
+    _browse_move_dir()
+        chosen
+    _build_downloads_tab()
+        actions
+        filters
+        label
+        outer
+        source
+        var
+    _build_duplicate_tab()
+        actions
+        filterbar
+        label
+        outer
+        top
+        var
+    _build_log_tab()
+        controls
+        log_scroll
+    _build_move_tab()
+        filters
+        find_actions
+        found_box
+        label
+        outer
+        panes
+        selected_actions
+        selected_box
+        selected_destination
+        selected_tree_box
+        source
+        var
+        width
+    _checksum()
+        block
+        digest
+        file
+    _clear_selected_move()
+        count
+    _delete_selected_duplicates()
+        all_copies
+        deleted
+        detail
+        group
+        ids
+        iid
+        line
+        lines
+        path
+        remaining
+        remaining_groups
+        selected
+        size
+        warning
+    _destination_for()
+        name
+        root
+        subdir
+    _drain_tasks()
+        digest
+        error
+        errors
+        groups
+        ids
+        iid
+        kind
+        number
+        path
+        paths
+        size
+    _duplicate_worker()
+        candidates
+        checks
+        contains
+        digest
+        duplicates
+        errors
+        extensions
+        groups
+        iterator
+        matching
+        maximum
+        minimum
+        name
+        path
+        recursive
+        root
+        size
+        starts
+        user_only
+    _execute_moves()
+        _
+        a
+        b
+        collisions
+        destinations
+        details
+        dst
+        iid
+        line
+        lines
+        moved
+        plans
+        same
+        src
+    _find_download_files()
+        contains
+        extensions
+        folder
+        iid
+        path
+        root
+        starts
+    _find_move_files()
+        count
+        iid
+        path
+        root
+    _insert_shared_path()
+        code
+        encoding
+        fh
+        index
+        lines
+        newline
+        node
+        raw
+        snippet
+        tree
+        updated
+    _log()
+        timestamp
+    _matches_filter()
+        name
+    _move_download_files()
+        dst
+        ids
+        iid
+        plans
+        src
+    _move_files()
+        _
+        ids
+        iid
+        moved
+        plans
+        src
+    _remove_selected_move()
+        iid
+        path
+    _rename_selected_move()
+        ids
+        new_name
+        path
+    _render_log()
+        at
+        folded
+        line
+        offset
+        only
+        start
+        term
+        visible
+        widget
+    _scan_paths()
+        path
+        paths
+    _select_duplicates()
+        group
+        selected
+    _selected_move_file()
+        path
+        subdir
+    _start_duplicate_scan()
+        maximum
+        minimum
+        opts
+        root
+    _update_destinations()
+        dest
+        iid
+        path
+        size
+        values
